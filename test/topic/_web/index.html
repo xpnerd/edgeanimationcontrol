@@ -1,0 +1,151 @@
+<!doctype html>
+<html class="no-js loading iframe">
+
+<head>
+    <meta charset="utf-8">
+    <title>Pre-U Online Leeromgeving</title>
+    <meta name="nemo-version" content="2.2.3">
+    <meta name="description" content="De animatie inhoud voor de online leeromgeving van de Universiteit Twente voor scholieren en docenten">
+    <meta name="keywords" content="online, leren, scholieren, pre-university, twente, leeromgeving, animatie, uitleg">
+    <meta name="viewport" content="width=1024, user-scalable=no, minimal-ui">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">	
+    
+    <!-- Nemo initial script, before loading the animated content -->
+    <script id="NemoInit">
+    document.documentElement.className = document.documentElement.className.replace("no-js", "js");
+    function initNemo() {
+        document.documentElement.className = document.documentElement.className.replace("no-js", "js");
+        var isiniframe = window.location != window.parent.location;
+        if (!isiniframe) {
+          document.documentElement.className = document.documentElement.className.replace("iframe", "");
+        }
+        // Display error to user, if so
+        window.onerror = function() {
+          document.documentElement.className += " failure";
+        };
+    }
+    window.onload = initNemo;
+    </script>
+    <!-- end nemo -->
+
+    <!-- Nemo css for developers -->
+    <link id="style" class="development" rel="stylesheet" href="development/designview.css">
+    <!-- end nemo -->
+</head>
+
+<body>
+
+    <!-- Nemo warnings and errors display -->
+    <div class="overlay">
+      <!--[if lt IE 10]>
+      <style>.overlay { display: block !important;} .overlay .content, .nav { display: none;}</style>
+      <div class="oldbrowser">
+        <div class="child">
+          <div class="oldbrowser_layer">
+            <div class="cell"><img src="styles/images/oldbrowser.png" width="360" height="264"></div>
+            <div class="cell" style="width: 320px;"><h1>Upgrade je browser</h1><p>Je browser is klassiek! Het is daarom hoogtijd voor een nieuwe. <strong><a href="http://browsehappy.com/" target="_blank" alt="Download moderne browser">Download hier</a></strong> een moderne browser om veilig en snel te surfen op het internet.</p></div><div style="clear:both;"></div>
+          </div>
+        </div>
+      </div> 
+      <![endif]-->
+        <div class="content">
+            <svg class="jsmessage" width="100%" height="100%" viewBox="0 0 550 180">
+                <image x="0" y="0" width="180px" height="130px" xlink:href="styles/images/warning.svg"></image>
+                <text transform="matrix(1 0 0 1 200 60)" fill="#FFFFFF" font-size="24">JavaScript is uitgeschakeld</text>
+                <text transform="matrix(1 0 0 1 200 80)" fill="#FFFFFF" font-size="12">
+                    <tspan x="0" y="0">Of je gebruikt een stokoude browser, &#243;f JavaScript is</tspan>
+                    <tspan x="0" y="14">simpelweg uitgeschakeld. Activeer de scripttaal om de</tspan>
+                    <tspan x="0" y="28">pagina te openen. Bekijk de instellingen van je browser.</tspan>
+                </text>
+            </svg>
+            <svg class="status" width="100%" height="100%" viewBox="0 0 550 180">
+                <image x="0" y="0" width="180px" height="130px" xlink:href="styles/images/warning.svg"></image>
+                <text transform="matrix(1 0 0 1 200 60)" fill="#FFFFFF" font-size="36">Ai, er gaat iets fout</text>
+                <text transform="matrix(1 0 0 1 200 80)" fill="#FFFFFF" font-size="12">
+                    <tspan x="0" y="0">Internetverbinding verbroken? Probeer eens de pagina te</tspan>
+                    <tspan x="0" y="14">verversen. Raadpleeg de console voor een foutenrapport.</tspan>
+                </text>
+                <svg class="ignore" x="200" y="102" width="100px" height="35px" viewBox="0 0 100 35">
+                    <path fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-miterlimit="10" stroke-dasharray="2.0256,2.0256" d="
+                        M58.21,13.59c0,1.29-1.31,2.34-2.94,2.34H3.44c-1.62,0-2.94-1.05-2.94-2.34V2.84c0-1.29,1.31-2.34,2.94-2.34h51.84
+                        c1.62,0,2.94,1.05,2.94,2.34V13.59z"/>
+                    <text transform="matrix(1 0 0 1 16.4 10.8)" fill="#FFFFFF" font-size="8">Sluiten</text>
+                </svg>
+            </svg>
+            
+        </div>
+    </div>
+    <!-- end nemo -->
+
+    <!-- Nemo viewport of animated content -->
+    <div id="wrapper">
+        <div id="viewport">
+            <main>
+                
+                <div id="slides" class="swipe">
+                    
+                    <div id="slideswrapper" class="swipe-wrap">
+                        <div id="slide-stay"></div>
+                        
+                        <div class="slide active">
+                        </div>
+
+                        <div class="slide">
+                        </div>
+
+
+                        <div class="slide">
+                        </div>
+
+                        <div class="slide">
+                        </div>
+
+                        <div class="slide">
+                        </div>
+
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+        
+    <!-- Nemo navigation (primarly for developers, not visible in iframe) -->
+    <nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
+
+        <div class="progress">
+            <div id="progressbar" class="progress-bar transition-steady" style="width:30%"></div>
+        </div>
+        <div class="container-fluid">
+
+            <div class="navbar-brand">
+                <a href="#" alt="University of Twente">
+                    <img width="109" height="55" src="styles/images/logo.png">
+                </a>
+            </div>
+
+            <ul class="nav navbar-nav pull-right">
+                <li>
+                    <a class="prev" href="#/">
+                        <span class="glyphicon glyphicon-chevron-left"></span>Vorige</a>
+                </li>
+                <li>
+                    <p class="navbar-text">
+                        <span class="curslide">-</span>/
+                        <span class="numslides">-</span>
+                    </p>
+                </li>
+                <li><a class="next" href="#/">Volgende <span class="glyphicon glyphicon-chevron-right"></span></a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+    <!-- end nemo -->
+
+    <!--  Nemo JS engine based on RequireJS -->    <script src="scripts/nemo-2.2.3.js"></script>
+    <!-- end nemo -->
+</body>
+</html>

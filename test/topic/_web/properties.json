@@ -1,0 +1,41 @@
+{
+  "title": "Basiskennis en begrippen",
+  "content": [
+    {
+      "file": "mo_2013_10_vermogensmarkt.html",
+      "name": "Vermogensmarkt"
+    },
+    {
+      "file": "mo_2013_20_geld_en_kapitaalmarkt.html",
+      "name": "Geldmarkt en kapitaalmarkt"
+    },
+    {
+      "file": "mo_2013_30_marktmechanisme_op_de_vermogensmarkt.html",
+      "name": "Marktmechanisme op de vermogensmarkt"
+    },
+    {
+      "file": "mo_2013_40_experimenteerruimte.html",
+      "name": "Experimenteerruimte"
+    },
+    {
+      "file": "mo_2013_50_personen_en_instellingen.html",
+      "name": "Personen en instellingen op de vermogensmarkt"
+    },
+    {
+      "file": "mo_2013_60_openbare_en_onderhandse_markt.html",
+      "name": "Openbare en onderhandse markt"
+    },
+    {
+      "file": "mo_2013_70_quiz.html",
+      "name": "Quiz"
+    }
+  ],
+  "abstract": "De vermogensmarkt is alle vraag naar en aanbod van vermogenstitels. Vermogenstitels zijn schuldbekentenissen of leningen. Voorbeelden hiervan zijn obligaties, hypothecaire leningen, spaartegoeden en aandelen.",
+  "authors": [
+    "Gerben Groeneveld",
+    "Willemijn Luiten"
+  ],
+  "educationalObjectives": [
+    2707
+  ]
+}
