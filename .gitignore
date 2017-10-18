@@ -56,3 +56,6 @@ typings/
 
 # dotenv environment variables file
 .env
+
+# javascript file
+dw_test.js

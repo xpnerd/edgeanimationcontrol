@@ -1,0 +1,360 @@
+RECHECK if alert works in nmscripts
+Check how to do the self-invocation in dreamweaver (maybe not supported)
+
+
+toXML(array)-----------------------------------------------------------------------------------
+
+element string handle
+    
+iterate over array
+    concacenate string values in xml format.
+
+end element string handle
+
+return the formatted string
+------------------------------------------------------------------------------------------
+
+
+checkForAnimations()----------------------------------------------------------------------
+
+if DWFfile.exists (if there exists folderpath, but should be file; weird), then
+
+    asks for list DWfile.listFolder ('files' or 'directories'), which returns array of strings
+
+    if there is a list, then
+
+        for every list element:
+            use URL and read file
+            retrieve updatePath
+
+                if updatePath exists, then
+                    add Path to list
+                
+                else,
+                    add empty path ("") to keep the order aligned.
+        
+        if list is empty, then
+            return toXML() format (values 'none')
+        
+        else,
+            return toXML() format (values both array joined with ',')
+    
+    else,
+        return toXML() format (values 'none')
+
+else,
+    return toXML() format (values 'none')
+
+return toXML() format (values 'none') UNNECASSERY
+------------------------------------------------------------------------------------------
+
+getAnimationNode()------------------------------------------------------------------------
+// used to select the animation div and a
+get dreamweaver DOM
+set animation bool as false (initial assumption based on the fact a new file has no animations)
+
+if there is a DOM and the type of dom.getSelectedNode === 'function' (basically a double check if dom exists), then
+    get DOM selectedNode
+
+    if a selectedNode exists and typeof .getAttribute === 'function' (basically a double check if node exists), then
+        get classlist 
+        set animation to: classlist && contains(classlist, class) //contains is a custom function because array.contains is not always supported (especially not in old dw).
+
+    if there is an animation and .getAttribute('data-name') is defined
+        set animation name to .getAttribute('data-name')
+        return toXML() (name and value: animation name)
+
+    else if (there is only animation)
+        return toXML() (name and value: emptyanicontainer)
+
+return toXML() (name and value -1)
+------------------------------------------------------------------------------------------
+
+addEdgeAnimation(givenname, givenpath)----------------------------------------------------
+
+get isnewAnimation (true if givenpath === "" || givenpath === undefined || givenpath === null, meaning there was no givenpath)
+get folderpath
+get animationFileURL
+get animationsSourceURL = folderpath, UP to `/web/...` (so not included)
+
+get absoluteSourceURL, absoluteRootURL;
+get destFolderURL
+
+get DOM
+get sourcePreloadURL
+get sourcePreloadFile 
+
+// Get the animation file
+if not isnewAnimation (already defined animation), then
+    get absoluteGivenPath
+
+    if the animation exists, then
+        set animationFileURL = givenpath
+    
+    else,
+        set animationFileURL to request for path from user (Browse)
+        set givenpath = 'none'; (special value, could also stay null)
+
+else,
+    set animationFileURL to request for path from user (Browse)
+
+// If animation file is present, do several extra checks
+if animationFileURL is defined, then (we do have an animation file)
+    get error = false
+    get animationName
+    get sourceFolderURL
+    get edgeFile
+    get edgeURL
+
+    // retrieve animation name and location
+    if (isNewAnimation)
+        animationName = the last part of animationFileURL;
+        sourceFolderURL = the animation folder contained in animations_src
+
+    else,
+        animationName = givenname;
+        sourceFolderURL = givenpath;
+
+    // check if sourceFolderURL is published folder
+    if not error
+        
+        if it is not a published published folder
+            set sourceFolderURL = sourceFolderURL + "/publish/web";
+
+        // check if the published edge files exists (from directory)
+        set absoluteRootURL = relativepath of sourceFolderURL
+        set absoluteSourceURL = absoluteRootURL + '/' + animationName + '_edge.js'
+
+        if the absoluteSourceURL does not exists, then
+            error = "Please publish blalblba"
+
+    if not error
+        set sourcefile = read absoluteSourceURL
+        
+        if sourcefile contains certain string, then
+            error = "animation not supported, please update your animation"
+
+    // check the existence of dest folders
+    if not error
+        
+        if animations folder does not exist in folderpath, then
+            create this folder
+        
+        if images folder does not exist in folderpath, then
+            create this folder
+
+        // generate target folder
+        set destFolderURL = animations folder + animationName
+
+        // check existence of destFolderURL
+        if animation_edge.js exists in destFolderURL
+            // check if the file includes the text NEMO. yes? (this is the old way, new way is putting it in data-relurl)
+            set destEdgeFile = read animation_edge.js
+            get modDate_dst = retrieve modificationDate from where the animationfile was copied
+            set modDate_src = retrieve modificationDate from where the animationfile is copied.
+
+            if modDate's are the same
+                error = "update failed", (This should not be an error I think)
+
+            else,
+                alert("updating an older version of NAME !") (this should not be here, for sure)
+                remove animation_edge.js from the destination.
+
+        else,
+            create destFolderURL
+
+    if error, then
+        alert(error);
+        return toXML() (values 'none');
+
+    else,
+        // copy the files
+        copy all .js files from source to destination. (only 1)
+
+        copy all the images to root = _web, root/images
+
+        // edit the preload file (_edge.js) by adding modDate and srcURL (this will be deprecated)
+        // Old method and new method. (if old method, convert to new method...)
+
+        if no edgeFile
+            alert("Could not read the animation file.")
+            return toXML() (values 'none')
+
+        else,
+            // replace variables location (THIS SHOULD BE CHECKED BETTER)
+
+            // add usefull info to edgeFile
+
+        if write to file and edited by NEMO
+            return toXML() (values names and paths)
+
+        else,
+            // unknown shit happened
+            alert("FAILED)
+            return toXML() (values 'none')
+
+// No animation file is found
+animationFileURL = undefined;
+return toXML() (values none)
+------------------------------------------------------------------------------------------
+
+_importEdgeAnimation(animationName, isNewAnimation, absoluteSourceURL, absoluteRootURL, destFolderURL)--------------------------------------------------------------------
+// Copies the files, 
+// absoluteSourceURL = edgeFile.js, absoluteRootURL = animatie folder (parent)
+
+Copy edgeFile.js and get modDate.
+
+// copy all the images from root/images to dest/images
+get list of Folder contents.
+
+if list exist, then
+    var doTheSame
+    var didAnOverride
+
+    for every list element do:
+        var absoluteDestinationImageURL of list element
+
+        if isNewAnimation && image (element) exists, then
+
+            if doTheSame == null and didAnOverride != null, then
+                doTheSame = confirm "Do you want to (override (if true) or ignore (else))
+
+            if dotThesame and didAnOverride != null, then 
+                var overrideTheFile = didAnOverride;
+
+                if NOT overrideTheFile
+                    do break;
+
+            else,
+                var overrideTheFile = confirm( The images ...name... already exists, would you like to override?)
+                didAnOverride = overrideTheFile;
+                
+                if Not overrideTheFile
+                    do continue;
+
+        Copy the image (element)
+
+
+// edit the preload file, get _edge.js file
+get edgeFile URL
+get edgeFile (read)
+
+// replace variables location
+edgeFile.replace image pointer (NECESSARY)
+edgeFile = edgeFile.replace (Remove external scripts) (NECESSARY)
+
+// DEPRECATED
+// Add usefull info
+add updatePath
+add modDate
+
+var result = Write to file (url) an add string: 'edited by nemo'.
+return result;
+
+------------------------------------------------------------------------------------------
+
+assignAnimation(givenAnimation)-----------------------------------------------------------
+// Has to be checked thoroughly!! weird shit happening
+
+if (givenAnimation != 'none') && givenAnimation !== undefined), then
+    get folderpath
+    get DOM
+
+    if (DOM != null)
+        get Node
+        get oldAssign (id)
+        get Classlist = theNode.class.split(" ");
+
+        if contains(classList, AnimationClass), then
+            theNode.id = ANIMATIONCLASS + "_" + givenAnimation. remove any digits, underscores and spaces in front of the first proper character.
+
+            // open <givenAnimation>_edge.js, extract the height and width of the stage and assign it to the container.
+            get read edge file
+            get str_cc = str && str.match(REGEX_COMPOSITIONCLASS);
+
+            if (str is defined and str_cc is defined and str_cc.length > 3), then
+                var width, height, compositionclass;
+                compositionclass = str_cc[2];
+
+                setAttributes, class, data-name, data-compositionclass
+
+                // get Stage object string
+
+                // get r object string
+
+                // get sizes
+                result = // get sizes
+
+                if (result.length > 1), then
+                    var end = result.length - 1;
+                    width = result (end - 1);
+                    height = result (end);
+
+                    theNode.style.width = set value
+                    theNode.style.height = set value
+                    
+                    return toXML(name success, value true)
+        
+            alert('Animation is not assigned, the size of the stage could not be retrieved)
+            return toXML(name success, val false)
+
+        else, 
+            alert('please select an animation container from the stage')
+            return toXML (name success, val false)
+
+    else,
+        alert ('First open a file)
+        return toXML(name succes, val false)
+
+else,
+
+    alert('please select an animation from the list')
+    return toXML (name succes, val false)    
+------------------------------------------------------------------------------------------
+
+removingAnimation(givenName)-----------------------------------------------------------------------
+if (not givenName) 
+    return directly
+
+// folderpath with web folderURL is basically ../_web/animations/givenName
+get folderURL = pathpatt.exec(dreamweaver.getDocumentPath)
+get dom
+get New REGEX for current animation
+
+if there exist a file in folderURL, then
+    
+    if (sure to remove the animation)
+        remove file
+
+        // this might be old stuff
+        var node = dom.getElementById(AnimationClass + givenName)
+        var scriptnode = dom.getElementById(EdgeAnimationActions)
+
+        new domActions
+        new new_actions;
+
+        // edgeActions is a functions definition, thus we evaluate it to actually define it.
+        if (there exist EdgeAnimation Actions), then
+            script = scriptnode.innerHTML;
+            
+            if script !== undefined, then eval(script);
+
+            if (typeof EdgeAnimationActions === 'function')
+                domActions = EdgeAnimationActions();
+
+            if domActions exists, then
+                new_actions = domActions (? why no idea)
+                init removeActions = false
+                init didIasked = false;
+
+                for (every domActions), do
+                    elementlistArray = domActions[key].element;
+
+                    if elementlistArray && elementlistArray.length > 0, then
+
+                        for ()
+
+                        etc
+
+------------------------------------------------------------------------------------------
+// https://stackoverflow.com/questions/3010840/loop-through-an-array-in-javascript

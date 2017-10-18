@@ -1,0 +1,72 @@
+// is used to create the list of animations, which can be used to assign
+
+// NEW: create list of edgeAnimations Objects and choose from those Objects
+//  check if the created list of edgeAnimations at the start are present throughout the proces.
+
+checkForAnimations()
+
+    if there are files in the animations folder, then
+
+        make a list of names with updatePaths (anim_src path) as pointers to the file
+
+        return those values
+
+    else,
+
+        return empty
+end
+-------------------------------------------------------------------------------------------------
+// used to check if an animation div is selected
+
+// NEW: deprecated, but might still be used to reassign animations...
+// or should be used when div is selected that when deleted, it deletes the actions
+// should maybe return objects?
+
+getAnimationNode()
+
+    if there is a DOM and the getSelectedNode is also a possible function, then
+        
+        if node exists and attribute is a possible function, then
+            make sure the class is edgeanim or not
+
+        if it is an animation and the data name is defined, then
+            return the full container
+
+        else if it has no data name, then (it is an empty container)
+            return the empty container
+
+    return it is not an animation.
+end
+-------------------------------------------------------------------------------------------------    
+// adds an animation to the list of possible animations, asks user in which folder it should look
+
+// NEW: should add and assign an animation. Give folder, not file...
+// this is a method for every edgeAnimation...
+
+addEdgeAnimation(givenname, givenpath)
+
+    // Get animation file
+
+    // If animation file is present do several extra checks
+
+        // retrieve animation name and location
+
+        // check if sourceFolderURL is published folder
+
+            // check if the published edge files exists
+
+        // check the existende of dest folders
+
+            // generate dest folder
+
+            // check existence of destFolderURL
+
+                // check if the file includes the test NEMO (old)
+
+        // copy the files
+
+
+    // no animation file is found
+
+importEdgeAnimation(animationName, isNewAnimation, absoluteSourceURL, absoluteRootURL, destFolderURL)         
+    
