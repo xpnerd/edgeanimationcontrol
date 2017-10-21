@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <script src="dw_test.js"></script>
@@ -9,17 +10,65 @@
 </head>
 
 <body>
-<title>TESTING AREA..</title>
-<h2>TESTING AREA...</h2>
+    <title>TESTING AREA..</title>
+    <h2>TESTING AREA...</h2>
 
-<p id="demo"></p>
+    <p id="demo"></p>
 
-<script>
+    <script>
         nemo_initPaths();
         document.getElementById("demo").innerHTML = nemo_getParentFolderPath();
-        
-        
-</script>
+
+        function loopy(num) {
+            var doTheSame = undefined;
+            var didAnOverride = undefined;
+            var iter = -1;
+            for (var j = 0; j < num; j++) {
+                iter++;
+                if (iter % 2) {
+                    if (doTheSame === undefined && didAnOverride !== undefined) {
+                        doTheSame = confirm("Do you want to " + (didAnOverride ? "override" : "ignore") + " all upcoming files?");
+                    }
+
+                    if (doTheSame && (didAnOverride !== undefined)) {
+                        var overrideTheFile = didAnOverride;
+                        if (!overrideTheFile) break;
+                    } else {
+                        var overrideTheFile = confirm("The image: " + iter + " already exists in your images directory. Would you like to override the file?");
+                        didAnOverride = overrideTheFile;
+                        if (!overrideTheFile) continue;
+                    }
+                }
+                //alert(absoluteRootURL + "/images/" + list[j]);
+                document.getElementById("demo").innerHTML = "Copies: " + iter;
+            }
+        }
+
+        function loopo(num) {
+            var doTheSame = false;
+            var didAnOverride = false;
+            var iter = -1;
+            for (var j = 0; j < num; j++) {
+                iter++;
+                if (iter % 2) {
+                    if (!doTheSame) {
+                        didAnOverride = confirm("The image: " + iter + " already exists in your images directory. Would you like to override the file?");
+                        doTheSame = confirm("Do you want to " + (didAnOverride ? "override" : "ignore") + " all upcoming files?");
+                    } else if (didAnOverride) {
+                        document.getElementById("demo").innerHTML = "Copies: " + iter;
+                    } else {
+                        alert('did not do: ' + iter);
+                    }
+                } else {
+                    document.getElementById("demo").innerHTML = "Copies: " + iter;
+                }
+            }
+        }
+
+
+
+    </script>
 
 </body>
+
 </html>

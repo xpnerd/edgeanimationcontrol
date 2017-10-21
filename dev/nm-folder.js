@@ -9,6 +9,7 @@
 var folder_publishweb = '\/publish\/web';                                        // First character is '/' due to dw.browseForFolderURL();
 var folder_web = '\/web';                                                       // First character is '/' due to dw.browseForFolderURL();
 var folder_anime = '\/animations';
+var folder_image = ' \/images';
 var folder_anime_src = '\/animations_src';
 var delimiter_path = '\/';
 var delimiter_folder_nemo = '\/_web'; 
@@ -28,7 +29,9 @@ var REGEX_TRAILING_INCLUDES = /edge\_includes$/;
 var abs_doc_path;                     // current document.  URI_path ends with 'file.html', dw API: docPathURL
 var abs_folder_path;                   // current (_web) folder.    URI_path ends with '/'
 var abs_root_path;           // topic (NL: module) folder. URI_path ends with folder name, dw API: siteRootURL
+var abs_dest_path;
 var abs_animations_path;
+var abs_images_path;
 
 /**
  * This functions has to be called everytime as first, before using any other functions from this file
@@ -42,6 +45,7 @@ function nemo_initPaths() {
     abs_root_path = nemo_getStringSliceUpTo(this.abs_doc_path, delimiter_folder_nemo);
     abs_dest_path = abs_root_path + delimiter_folder_nemo;
     abs_animations_path = abs_dest_path + folder_anime;
+    abs_images_path = abs_dest_path + folder_image;
 }
 
 /**
