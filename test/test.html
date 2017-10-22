@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <script src="dw_test.js"></script>
-    <script src="../dev/src/cust-part_nmscript"></script>
+    <script src="../dev/src/cust-part_nmscripts.js"></script>
 </head>
 
 <body>
@@ -16,6 +16,28 @@
     <script>
         nemo_initPaths();
         document.getElementById("demo").innerHTML = nemo_getParentFolderPath();
+
+        function pathy(folder_path) {
+            if (folder_path === "" || typeof folder_path === 'boolean') {
+        publish_path = false;
+    } else if (REGEX_TRAILING_PUBLISHWEB.test(folder_path)) {
+        // it is a "ANIMATION/publish/web/" path
+        publish_path = folder_path;
+    } else if (REGEX_TRAILING_PUBLISH.test(folder_path)) {
+        // it is a "ANIMATION/publish/" path
+        publish_path = folder_path + folder_web;
+    } else if (REGEX_TRAILING_PUBLISHWEBIMG.test(folder_path)) {
+        // it is a "ANIMATION/publish/web/images" path
+        publish_path = nemo_getStringSliceUpTo(folder_path, delimiter_path);
+    } else if (REGEX_TRAILING_IMG.test(folder_path) || REGEX_TRAILING_INCLUDES.test(folder_path)) {
+        // it is a "ANIMATION/images" or "ANIMATION/edge_includes" path
+        publish_path = nemo_getStringSliceUpTo(folder_path, delimiter_path) + folder_publishweb;
+    } else {
+        publish_path = folder_path + folder_publishweb;
+    }
+
+    return publish_path;
+        }
 
         function loopy(num) {
             var doTheSame = undefined;
@@ -54,8 +76,9 @@
                         doTheSame = confirm("Do you want to " + (didAnOverride ? "override" : "ignore") + " all upcoming files?");
                     } else if (didAnOverride) {
                         document.getElementById("demo").innerHTML = "Copies: " + iter;
+                        alert("override: " + iter);
                     } else {
-                        alert('did not do: ' + iter);
+                        //alert('did not do: ' + iter);
                     }
                 } else {
                     document.getElementById("demo").innerHTML = "Copies: " + iter;

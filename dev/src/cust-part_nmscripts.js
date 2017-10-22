@@ -60,7 +60,7 @@ var modification_str_update_path = "\/\/updatePath:";       // Nemo (default) fi
 
 var REGEX_TRAILING_PUBLISHWEB = /publish\/web$/;
 var REGEX_TRAILING_PUBLISH = /publish$/;
-var REGEX_TRAILING_PUBLISHWEBIMG = /publish\/web$/;
+var REGEX_TRAILING_PUBLISHWEBIMG = /publish\/web\/images$/;
 var REGEX_TRAILING_IMG = /images$/;
 var REGEX_TRAILING_INCLUDES = /edge\_includes$/;
 var REGEX_TRAILING_EDGEFILE = /\_edge\.js/;
@@ -328,7 +328,7 @@ function nemo_isValidAnimeFolder(folder_path) {
     } else if (REGEX_TRAILING_PUBLISH.test(folder_path)) {
         // it is a "ANIMATION/publish/" path
         publish_path = folder_path + folder_web;
-    } else if (REGEX_TRAILING_PUBLISHWEBIMG.test(folderpath)) {
+    } else if (REGEX_TRAILING_PUBLISHWEBIMG.test(folder_path)) {
         // it is a "ANIMATION/publish/web/images" path
         publish_path = nemo_getStringSliceUpTo(folder_path, delimiter_path);
     } else if (REGEX_TRAILING_IMG.test(folder_path) || REGEX_TRAILING_INCLUDES.test(folder_path)) {
@@ -344,7 +344,7 @@ function nemo_isValidAnimeFolder(folder_path) {
     //if (publish_path && DWfile.exists(publish_path)) {
         return publish_path;
     } else {
-        alert("Could not find published folder.\nPlease publish (Ctrl+Alt+S) your animation first.");
+        alert("Published folder does not exist.\nPlease, make sure to selecht an (published) Edge Animation folder.\nOtherwise publish (Ctrl+Alt+S) your animation first.");
         return false;
     }     
 }
