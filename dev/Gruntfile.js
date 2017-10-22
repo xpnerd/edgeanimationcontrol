@@ -7,8 +7,8 @@ module.exports = function(grunt) {
          separator: '\n\n',
        },
        dist: {
-         src: ['src/json-part_nmscript.js', 'src/cust-part_nmscript'],
-         dest: 'dist/allScripts.js',
+         src: ['src/json-part_nmscript.js', 'src/cust-part_nmscript.js'],
+         dest: 'dist/new_nmscripts.js',
        },
      },
    });
