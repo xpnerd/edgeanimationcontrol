@@ -59,3 +59,6 @@ typings/
 
 # javascript file
 dw_test.js
+
+# build dist directory
+dev/dist/
