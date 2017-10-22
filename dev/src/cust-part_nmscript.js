@@ -13,13 +13,15 @@ nm.initPaths = nemo_initPaths;
 nm.getStringTrailing = nemo_getStringTrailing;
 nm.getStringSliceUpTo = nemo_getStringSliceUpTo;
 nm.contains = nemo_contains;
+nm.isValidDocument = nemo_isValidDocument;
+
 nm.recurseTask = nemo_recurseTask;
 
 nm.copyFiles = nemo_copyFiles;
 
 nm.isValidAnimeFolder = nemo_isValidAnimeFolder;
 nm.getParentFolderPath = nemo_getParentFolderPath;
-nm.getParentFolderPathBrowse = nemo_getParentFolderPathBrowse;
+nm.getFolderPathBrowse = nemo_getFolderPathBrowse;
 
 nm.getSlideNodes = nemo_getSlideNodes;
 nm.getCurrentSlide = nemo_getCurrentSlide;
@@ -102,8 +104,8 @@ var abs_images_path;        // destination folder path (default: file:///C:/.../
  */
 function nemo_initPaths() {
     abs_doc_path = dw.getDocumentPath('document');
-    abs_folder_path = nemo_getParentFolderPath(this.abs_doc_path);
-    abs_root_path = nemo_getStringSliceUpTo(this.abs_doc_path, delimiter_folder_nemo);
+    abs_folder_path = nemo_getParentFolderPath(abs_doc_path);
+    abs_root_path = nemo_getStringSliceUpTo(abs_doc_path, delimiter_folder_nemo);
     abs_dest_path = abs_root_path + delimiter_folder_nemo;
     abs_animations_path = abs_dest_path + folder_anime;
     abs_images_path = abs_dest_path + folder_image;
@@ -179,6 +181,15 @@ function nemo_contains(a, obj) {
         }
     }
     return false;
+}
+
+/**
+ * Checks if the current DOM is a special Nemo DOM (document)
+ * 
+ * @returns {boolean} true or false
+ */
+function nemo_isValidDocument() {
+    return (dw.getDocumentDOM() != null && dw.getDocumentDOM().getElementById('slides') != null && dw.getDocumentDOM().documentType != 'XSLT-fragment' && dw.getDocumentDOM().getParseMode() == 'html' && (dw.getActiveWindow(true) != null && dw.getActiveWindow(true).allowsEdits()));
 }
 
 /**
