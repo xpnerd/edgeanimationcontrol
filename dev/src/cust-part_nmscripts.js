@@ -41,12 +41,13 @@ nm.addEdgeAnimation = nemo_addEdgeAnimation;
  */
 
 var class_animation = "EdgeAnimation";                      // div class of an (Edge) Animation
+var delimiter_class_space = ' ';
 var delimiter_file_edge = "\_edge.js";                      // Edge Animation (default) file name addition.
 var delimiter_folder_nemo = '\/_web';                       // Nemo (default) web folder
 var delimiter_path = '\/';                                  // URL separator
 var folder_anime = '\/animations';                          // Nemo (default) animations folder path
 var folder_anime_src = '\/animations_src';                  // Nemo (default) animations' source folder path
-var folder_image = ' \/images';                             // Nemo (default) images folder path
+var folder_image = '\/images';                              // Nemo (default) images folder path
 var folder_publishweb = '\/publish\/web';                   // Edge Animation published folder path
 var folder_web = '\/web';                                   // Edge Animation web folder path
 var str_slideswrapper = "slideswrapper";                    // Element id.
@@ -66,10 +67,19 @@ var REGEX_TRAILING_INCLUDES = /edge\_includes$/;
 var REGEX_TRAILING_EDGEFILE = /\_edge\.js/;
 
 var REGEX_ATTR_COMPOSITIONCLASS = /AdobeEdge,('|")([^'"]+)('|")/;
-var REGEX_ATTR_OBJECT_STAGE = /\'\${Stage}\'[\s\S]*?\}/g;
+/**
+ * More robust then the old version: /\'\${Stage}\'[\s\S]*?\}/g.
+ */
+var REGEX_ATTR_OBJECT_STAGE = /style:{\'\${Stage}\'[\s\S]*?\}/g; 
 var REGEX_ATTR_OBJECT_R = /(r:)[\s]{0,}\[[\s\S]*?\]/g;
 var REGEX_ATTR_SIZES = /[0-9]{3,4}/g;
 var REGEX_ATTR_VERSION = /vid\=/;
+/**
+ * Undocumented: in the published _edge.js file (minified); x1, x2 and x3 seem to hold info on:
+ * current version, minimum version compatibility and build version resp.
+ * If version and minimum version comp. coincinde, then x2 is the build version and x3 hold diff. info.
+ */
+var REGEX_ATTR_VERSION_NUM = /(x1\=\')([0-9])\./;               // main version number. We try to support versions 5.x.x or higher.
 var REGEX_ATTR_UPDATE = new RegExp(modification_str_update_path + "[^" + delimiter_modification + "]*"); //RegEx, /\/\/updatePath:[^*]*/;
 var REGEX_ATTR_MODIFICATION = new RegExp(modification_str_date + "[^" + delimiter_modification + "]*");  //RegEx, /\/\/modificationDate:[^*]*/;
 var REGEX_CHANGE_IMG_LOC = /(var im=')[\S\s]*?'/g;
@@ -105,7 +115,15 @@ var abs_images_path;        // destination folder path (default: file:///C:/.../
 function nemo_initPaths() {
     abs_doc_path = dw.getDocumentPath('document');
     abs_folder_path = nemo_getParentFolderPath(abs_doc_path);
-    abs_root_path = nemo_getStringSliceUpTo(abs_doc_path, delimiter_folder_nemo);
+    
+    /*
+     * Standard nemo structure is ".../topic/_web/subtopic.html", with the .html being the abs_doc_path.
+     * Other folders are ".../topic/animations_src", so ".../topic" is our root path.
+     * For robustness we just go twice up in the tree, instead of cutting off everthing after "/_web".
+     * 
+     * nemo_getStringSliceUpTo(abs_doc_path, delimiter_folder_nemo);
+     */
+    abs_root_path = nemo_getParentFolderPath(abs_folder_path);
     abs_dest_path = abs_root_path + delimiter_folder_nemo;
     abs_animations_path = abs_dest_path + folder_anime;
     abs_images_path = abs_dest_path + folder_image;
@@ -237,9 +255,9 @@ function nemo_copyFiles(src_folder, folder_str_name) {
     } else {
         folder_name = folder_str_name;
     }
-
-    var list_files = DWfile.listFolder(src_folder);
-    if (list_files) {
+    
+    var list_files = DWfile.listFolder(src_folder, "files");
+    if (list_files.length) {
         var doTheSame = false;
         var didAnOverride = false;
 
@@ -261,7 +279,7 @@ function nemo_copyFiles(src_folder, folder_str_name) {
             }
         }
     }
-    return isSucces
+    return isSucces;
     /* var list_img = DWfile.listFolder(edge_animation.path.abs + folder_image);
     if (list_img) {
         var doTheSame = false;
@@ -340,8 +358,7 @@ function nemo_isValidAnimeFolder(folder_path) {
 
     // Condition makes it possible that publish_path can be false,
     // alert message can be defined at one location, instead of multiple.
-    if (publish_path && dw.exists(publish_path)) {
-    //if (publish_path && DWfile.exists(publish_path)) {
+    if (publish_path && DWfile.exists(publish_path)) {
         return publish_path;
     } else {
         alert("Published folder does not exist.\nPlease, make sure to selecht an (published) Edge Animation folder.\nOtherwise publish (Ctrl+Alt+S) your animation first.");
@@ -374,7 +391,7 @@ function nemo_getParentFolderPath(path) {
 
         try {
             if (typeof path !== 'string') throw "is not of type string.";
-            //if (!DWfile.exists(path)) throw "is not an existing URIs."; // Should be active in the end product...
+            if (!DWfile.exists(path)) throw "is not an existing URIs.";
         } catch(err) {
             alert("ERROR: nm_getFolderPath's argument " + err);
         }
@@ -401,9 +418,8 @@ function nemo_getFolderPathBrowse(folder_path) {
     var start_path = abs_root_path + folder_path;
     var absFolderPath = "";
 
-    if (dw.exists(start_path)) {
-    // if (DWfile.exists(start_path)) {
-        absFolderPath = dw.browseForFolder();//dw.doURLEncoding(dw.browseForFolderURL("Please select an animation folder.", start_path));
+    if (DWfile.exists(start_path)) {
+        absFolderPath = dw.doURLEncoding(dw.browseForFolderURL("Please select an animation folder.", start_path));
     } else {
         alert("ERROR: nm.getFolderPathBrowse's given startFolder does not exist or is invalid input.");
     }
@@ -412,7 +428,7 @@ function nemo_getFolderPathBrowse(folder_path) {
     if (absFolderPath === "") {
         return false;
     } else {
-        return absFolderPath;//dw.relativeToAbsoluteURL(abs_doc_path, abs_folder_path, absFolderPath);
+        return dw.relativeToAbsoluteURL(abs_doc_path, abs_folder_path, absFolderPath);
     }
 }
 
@@ -522,14 +538,13 @@ function nemo_getStageHeight(dom) {
 /**
  * Checks if there exists an unique Edge Animation file in the <tt>folderPath</tt>.
  * 
- * @param {string} folderpath 
+ * @param {string} folder_path 
  * @returns {(string | boolean)} filename or false.
  */
-function nemo_getAnimeName(folderpath) {
-    var file_list = dw.listFolder();
-    //var file_list = DWfile.listFolder(folderPath, "files"); //check the typeof the output...
+function nemo_getAnimeName(folder_path) {
+    var file_list = DWfile.listFolder(folder_path, "files");
     var error_or_filename = false;
-
+    
     if (file_list.length) {
         
         var numValidEdgeAnime = 0;
@@ -578,10 +593,10 @@ function nemo_isModified(modification_dest, modification_src, path_dest_file) {
     var error = false;
 
     if (modification_dest === modification_src) {
-        alert("Animation up-to-date.\n If changes were made, please re-publish (Ctrl + Shift + S) your animation first.");
+        alert("Animation up-to-date.\nIf changes were made, please re-publish (Ctrl + Shift + S) your animation first.");
         return false;
     } else if (path_dest_file == null) {
-        alert("Updated an older version, if no errors occur!");
+        alert("Updated to a newer version, if no errors occur!");
         return true;
     } else {
         alert("Updated an older version, if no errors occur!");
@@ -598,11 +613,11 @@ function nemo_isModified(modification_dest, modification_src, path_dest_file) {
  * @param {string} source_text - the read file contents (i.e. text)
  * @returns {boolean} True for succes, False for failure. 
  */
-function nemo_importFiles(edge_animation, source_text) {
+function nemo_importEdgeFiles(edge_animation, source_text) {
     var error = false;
 
-    if (!DWfile.exists(abs_dest_path + folder_anime)) DWfile.createFolder(abs_dest_path + folder_anime);
-    if (!DWfile.exists(abs_dest_path + folder_image)) DWfile.createFolder(abs_dest_path + folder_image);
+    if (!DWfile.exists(abs_animations_path)) DWfile.createFolder(abs_animations_path);
+    if (!DWfile.exists(abs_images_path)) DWfile.createFolder(abs_images_path);
 
     if (DWfile.exists(edge_animation.path.destfile)) {
         var list_str_modate = REGEX_ATTR_MODIFICATION.exec(DWfile.read(edge_animation.path.destfile));
@@ -620,8 +635,11 @@ function nemo_importFiles(edge_animation, source_text) {
     if (error) {
         return false;
     } else {
-        nemo_copyFiles(edge_animation.path.abs + folder_image, folder_image);
+        var isSucces = nemo_copyFiles(edge_animation.path.abs + folder_image, folder_image);
         
+        if (!isSucces){
+            alert('ERROR: copying (image) files failed...');
+        }
         /**
          * Modify Edge Animate file and write to dest_file.
          */
@@ -658,6 +676,64 @@ function nemo_insertTag(divTag, divID) {
 }
 
 /**
+ * Function that makes a list of EdgeAnimation objects based on the contents
+ * it gets from the <tt>abs_animations_path</tt> folder.
+ * 
+ * @returns {Object} A list of EdgeAnimation objects or an empty list.
+ */
+function nemo_getEdgeAnimations() {
+    var list_animations = [];
+    var list_folder = DWfile.listFolder(abs_animations_path, 'directories');
+
+    if (list_folder.length){
+        
+        // Check all the found folders containing an animation.
+        for (var i = 0; i < list_folder.length; i++) {
+            var source_text = false;
+            var edge_animation = new EdgeAnimation();
+            var list_files = DWfile.listFolder(abs_animations_path + delimiter_path + list_folder[i], 'files');
+            
+            var numValidEdgeAnime = 0;
+            var error_or_filename = false;
+
+            // Check if there exists an _edge.js file
+            for (var j = 0; j < list_files.length; j++) {
+                var element_string = file_list[j];
+
+                if (REGEX_TRAILING_EDGEFILE.test(element_string)) {
+                    numValidEdgeAnime++;
+                    error_or_filename = element_string;
+                }
+            }
+
+            if (numValidEdgeAnime === 0) {
+                error_or_filename = "ERROR: The animations folder: " + list_folder[i] + " does not contain any animation file.";
+            } else if (numValidEdgeAnime === 1) {
+                source_text = DWfile.read(abs_animations_path + delimiter_path + list_folder[i] + delimiter_path + error_or_filename);
+                
+                // Done the avoind showing the error when succesfull.
+                error_or_filename = !edge_animation.initFromEdgeFile(source_text, error_or_filename);
+
+                list_animations.push(edge_animation);
+            } else {
+                error_or_filename = "ERROR: The animations folder: " + list_folder[i] + " contains more then one animation file."
+            }
+
+            // Handle the errors.
+            if (error_or_filename) {
+                alert(error_or_filename);
+            }
+        }
+        
+        //
+        return list_animations;
+    } else {
+        // No animation folders present.
+        return list_animations;
+    }
+}
+
+/**
  * This function is called as first when no animations exist. It
  * adds an animation in the sense of adding to multiple parts:
  * - Creates an EdgeAnimation object,
@@ -670,36 +746,51 @@ function nemo_insertTag(divTag, divID) {
 function nemo_addEdgeAnimation() {
     nemo_initPaths(); // can also be called outside this!
     var error = false;
+    
     var edge_animation = new EdgeAnimation();
+    
 
     /**
      * use of short-circuiting to write everything in a short way.
      * 
      * (1) If it could init folder and file paths function continues process, else return false.
      * 
-     * (2)     If the destination file already exists, it will continue this (sub)process (updating an older animation),
+     * (2)      If the destination file already exists, it will continue this (sub)process (updating an older animation),
      *          
-     * (3)             If it is modification dates are the same return false,
-     *              else copy new-files,
+     * (3)              If it is modification dates are the same return false,
+     *                  else copy new-files,
      * 
-     *      else it will continue the normal process of modifying and copying and return true
+     *          else it will continue the normal process of modifying and copying and return true
      */
 
     // (1) initiate all paths and name of the file
-    isAdded = edge_animation.initFromFolderPath();
-
+    var isAdded = edge_animation.initFromFolderPath();
+     
     // (2) read the source file, get and set default attribute values.
     var source_text = isAdded && DWfile.read(edge_animation.path.srcfile);
     isAdded = isAdded && edge_animation.setDefaultAttributes(source_text);
 
     // (3) import all files, copying images, modifying and write publish edge file.
-    isAdded = isAdded && nemo_importFiles(edge_animation, source_text);
+    isAdded = isAdded && nemo_importEdgeFiles(edge_animation, source_text);
 
     // (4) insert tag....
     isAdded = isAdded && nemo_insertTag(edge_animation.getDivTag(), edge_animation.attributes.id);
 
     // If all steps went well it returns an EdgeAnimation object.
     return (isAdded ? edge_animation : isAdded);
+}
+
+function nemo_delEdgeAnimation(edge_animation) {
+    if (edge_animation instanceof EdgeAnimation) {
+        // confirm deletion.
+
+        // Check for EdgeActions and remove actions
+
+        // confirm deletion animation container...
+    } else {
+        alert('ERROR: the object that has to be deleted/removed is not an EdgeAnimation object.');
+        return false;
+    }
 }
 
 /**
@@ -728,11 +819,11 @@ var EdgeAnimation = (function () {
             "modidate":  ""
         };
         this.path = {
-            "abs":      "",             // Absolute path to source folder, ends uri without '/'.
+            "abs":      "",             // Absolute path to current source folder, ends uri without '/'.
             "rel":      "",             // Relative path to source folder, ends uri without '/'.
-            "srcfile":  "",
-            "dest":     "",
-            "destfile": ""
+            "srcfile":  "",             // Absolute path to current source file, ends URI with '_edge.js'.
+            "dest":     "",             // Absolute path to current destination folder.
+            "destfile": ""              // Absolute path to current destination file.
         };
 
         this.DOMid
@@ -756,6 +847,30 @@ var EdgeAnimation = (function () {
     }; */
 
     /**
+     * The first function that has to be called when object is created from reading an
+     * EdgeAnimation-file. It sets file and folder names, with help of setCustomAttributes
+     * it will also initiate the current paths.
+     * 
+     * @param {string} source_text - the file content string
+     * @param {string} filename - the filename of an edge animation (which ends with _edge.js)
+     * @returns {boolean} True for succes, false for failure.
+     */
+    EdgeAnimation.prototype.initFromEdgeFile = function (source_text, filename) {
+        if (this.setCustomAttributes(source_text)) {
+            this.name.folder = nemo_getStringTrailing(nemo_getStringSliceUpTo(this.path.abs, folder_publishweb), delimiter_path);
+            this.name.file = nemo_getStringSliceUpTo(filename, delimiter_file_edge);
+
+            this.path.srcfile = this.path.abs + delimiter_path + filename;
+            this.path.dest = abs_animations_path + delimiter_path + this.name.file;
+            this.path.destfile = this.path.dest + delimiter_path + filename;
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * The first function that has to be called when an EdgeAnimation-file is added.
      * Asks for a folder containing an Edge Animation, if eligible it initiates basic animation file properties.
      * It does not read the contents yet, so it only checks shallow/trivial eligiblity. 
@@ -763,16 +878,21 @@ var EdgeAnimation = (function () {
      * @return {boolean} True if succeeded, false if failed.
      */
     EdgeAnimation.prototype.initFromFolderPath = function () {
-        // first check if this is actually a new animation!
-        var path = nemo_recurseTask("Are you sure to not add an animation?", nemo_getParentFolderPathBrowse);
-        this.path.abs = nemo_isValidAnimeFolder(path);
-
+        // It is not first checked if it is a new animation, this is actually handled before actual copying in nemo_importEdgeFiles().
+        var path = nemo_recurseTask("Are you sure to quit and not add an animation?", nemo_getFolderPathBrowse);
+        if (path) {
+            this.path.abs = nemo_isValidAnimeFolder(path);
+        } else{
+            // do nothing, since the user canceled adding.
+        }
+        
         // if path was given and it is valid, then (only) proceed, return true here.
         // function to check if valid animationfolder.
         if (this.path.abs) {
             // Due to the workings of Edge Animate 5.0.1 and 6.0.0 the names of file and folder coincide, see a sample folder for this phenomenen.
+            
             this.name.folder = nemo_getStringTrailing(path, delimiter_path);
-            this.name.file = nemo_getAnimeName(this.path.abs);
+            this.name.file = nemo_getAnimeName(this.path.abs);//stuck here i think.
 
             this.path.rel = dw.absoluteURLToDocRelative(abs_doc_path, abs_root_path, this.path.abs);
             this.path.srcfile = this.path.abs + delimiter_path + this.name.file + delimiter_file_edge;
@@ -801,15 +921,21 @@ var EdgeAnimation = (function () {
     EdgeAnimation.prototype.setDefaultAttributes = function (source_text) {
         var error = false;
         var list_matches = source_text && source_text.match(REGEX_ATTR_COMPOSITIONCLASS);
+
+        var version = source_text.match(REGEX_ATTR_VERSION_NUM);
+        version = version && version[2];
+        
         this.attributes.id = this.attributes.class + "_" + this.name.file.replace(REGEX_CHANGE_SPECIAL, "");
+        
+
         if (source_text == null) {
-            error = 'could not retrieve the animation size.';
+            error = 'could not retrieve any animation info; null.';
         } else if (source_text == false) {
             alert("ERROR: No source file content.");
             return false;
-        } else if (!REGEX_ATTR_VERSION.test(source_text)) {
-            error = ':Animation is not supported.\nPlease update your animation to the 5.x.x version,\n(Adobe Edge Animate CC 2014 or higher).';
-        } else if (list_matches == null || list_matches.length > 3) {
+        } else if (!REGEX_ATTR_VERSION.test(source_text) || (version && version < 5)) {
+            error = ':Animation is not supported.\nPlease update your animation to the 5.x.x version,\n(Adobe Edge Animate CC 2014.1 or higher).';
+        } else if (list_matches == null || list_matches.length < 4) {
             // there could also be something wrong with the composition name.
             error = 'could not retrieve Adobe Edge Animation file content particulars,\ne.g. the composition class.';
         } else {
@@ -819,17 +945,19 @@ var EdgeAnimation = (function () {
                 this.attributes.modidate = DWfile.getModificationDate(this.path.srcfile);
             }
 
-            // get and set sizes.
-            source_text = source_text.match(REGEX_ATTR_OBJECT_STAGE); // Get Stage Object
+            // get and set sizes. Not the safest/best way of getting the information...
+            source_text = source_text.match(REGEX_ATTR_OBJECT_STAGE);               // Get Stage Object
             source_text = source_text && source_text[0];
-            source_text = source_text.match(REGEX_ATTR_OBJECT_R); // Get R Object
+            source_text = source_text.match(REGEX_ATTR_OBJECT_R);                   // Get R Object
             source_text = source_text && source_text[0];
 
-            var list_sizes = source_text && source_text.match(REGEX_ATTR_SIZES); // Get sizes
-
-            if (list_sizes == null || list_sizes.length < 2) {
-                error = "could not retrieve the animation's sizes";
+            var list_sizes = source_text && source_text.match(REGEX_ATTR_SIZES);    // Get sizes
+            var list_length = list_sizes.length;
+            if (list_sizes == null || list_length < 2) {
+                error = "could not retrieve the animation's sizes.";
             } else {
+                // This is suboptimal, since there is a border case with 6 values for 'rect' (R Object). 
+                // Undocumented, but might have to do with "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect"
                 var end = list_sizes.length - 1;
 
                 this.attributes.width = list_sizes[end - 1];
@@ -893,8 +1021,8 @@ var EdgeAnimation = (function () {
         var top = 260;
         var left = 340; // 500 is default width
         var uniqueId = this.attributes.id;
-        // OLD WAY for class attribute: "compclass + ' ' + class_animation"
-        var divTag = '<div class="' + class_animation 
+        // New way for class should be: "class_animation", but nemo-engine does not support that yet... ("compclass + ' ' + class_animation")
+        var divTag = '<div class="' + class_animation + delimiter_class_space + this.attributes.compclass 
                    + '" id="' + uniqueId 
                    +'" style="position: absolute; top: ' + top 
                    + 'px; left: ' + left 
@@ -922,7 +1050,7 @@ var EdgeAnimation = (function () {
         } else if (source_text == false) {
             return false;
         } else {
-            // The published _edge.js files have an empty first line, that is why adding comments does not affect the functioning.
+            // The published _edge.js files have an empty first line, that is why adding comments in the file does not affect the functioning.
             var text_additional = modification_str_stamp
                 + modification_str_update_path + this.path.rel + delimiter_modification
                 + modification_str_date + this.attributes.modidate + delimiter_modification;

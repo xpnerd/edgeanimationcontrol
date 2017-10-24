@@ -4,10 +4,10 @@ module.exports = function(grunt) {
    grunt.initConfig({
      concat: {
        options: {
-         separator: '\n\nMake sure to uncomment stuff in:\nnemo_isValidAnimeFolder\ngetParentFolderPath',
+         separator: '\n\n',
        },
        dist: {
-         src: ['src/json-part_nmscript.js', 'src/cust-part_nmscript.js'],
+         src: ['src/json-part_nmscripts.js', 'src/cust-part_nmscripts.js'],
          dest: 'dist/new_nmscripts.js',
        },
      },
