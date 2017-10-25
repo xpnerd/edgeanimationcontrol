@@ -1,0 +1,416 @@
+<!-- MENU-LOCATION=NONE -->
+<!DOCTYPE HTML SYSTEM "-//Macromedia//DWExtension layout-engine 5.0//dialog">
+
+<html xmlns:MMString="http://www.macromedia.com/schemes/data/string/">
+<head>
+
+<!-- Copyright 2008 Adobe Systems Incorporated.  All rights reserved. -->
+<script type="text/javascript" src="../Shared/Common/Scripts/dwscripts.js"></script>
+<script type="text/javascript" src="../Shared/Nemo/nmscripts.js"></script>
+<script type="text/javascript" src="../Shared/Common/Scripts/ListControlClass.js"></script>
+<script type="text/javascript" src="../Shared/Common/Scripts/GridControlClass.js"></script>
+<script type="text/javascript" src="../Shared/Common/Scripts/RadioGroupClass.js"></script>
+
+
+<script>
+var HELP_DOC = "http://olo.test.twenteacademy.nl/wiki/olo/Nm_EdgeActions";
+var RETURN_TAG='';
+var RAWSYMBOLS;
+var COMPID;
+var SELECT_CS;
+var SELECT_ACTIONS;
+var SELECT_COMMAND;
+var CHECK_BACKWARDS;
+var TREE_CONTROL;
+var DOCUMENTDATA;
+
+function canAcceptCommand() {
+  var dom = dw.getDocumentDOM();
+  var slides = dom && dom.getElementById('slides');
+  if(slides)
+    return true;
+
+  return false;
+}
+
+function initializeUI() { 
+  SELECT_CS = new ListControl("selectCurrentSlide");
+  SELECT_ACTIONS = new ListControl("actionList");
+  SELECT_ACTIONS.init();
+  CHECK_BACKWARDS = document.getElementById("backwards");
+  var treeNodeString = '';
+
+  var documentdata = getDataFromDocument();
+  if(!documentdata) return;
+  initSlideBox(documentdata.currentslide, documentdata.totalslides);
+  displayActions(documentdata.currentslide);
+}
+
+function updateUI(type) {
+  var sels, lact;
+  sels = parseInt(SELECT_CS.getValue());
+  lact = parseInt(SELECT_ACTIONS.getValue());
+  back = CHECK_BACKWARDS.checked;
+  if(isNaN(sels)) return;
+  switch(type) {
+    case "changedslide":
+    { 
+      CHECK_BACKWARDS.checked = false;
+      back = false;
+      displayActions(sels, back);
+      break;
+    }
+    case "removeaction" :
+    {
+      if(!isNaN(lact)) {
+        removeAction(sels, lact, back);
+        displayActions(sels, back);
+      }
+      break;
+    }
+    case "addaction" :
+    {
+      var cmdFile = dreamweaver.getConfigurationPath() + "/Commands/NM_NewEdgeAction.htm";
+      var cmdDOM = dreamweaver.getDocumentDOM(cmdFile);
+      
+      dreamweaver.popupCommand("NM_NewEdgeAction.htm");
+      
+      var theaction = cmdDOM.parentWindow.createAction();
+      if(theaction !== undefined && !isEmpty(theaction)) {
+        addAction(sels, back, theaction.comp, theaction.listofelements, theaction.command, theaction.target);
+        displayActions(sels, back);
+      }
+  
+      break;
+    }
+    case "setbackwards" :
+    {
+      displayActions(sels, back);
+      break;
+    }
+  }
+}
+
+function getActionsFromDocument(slidenumber, backwards) {
+  var setting = slidenumber === undefined ? 'all' : slidenumber;
+  backwards = backwards || false; 
+  var dom = dw.getDocumentDOM();
+  var scriptnode = dom.getElementById('EdgeAnimationActions');
+  if(scriptnode === undefined) return;
+
+  var script = scriptnode.innerHTML;
+  if(script !== undefined) eval(script);
+  if(typeof EdgeAnimationActions !== 'function') return;
+  
+  var actions;
+  actions = EdgeAnimationActions();
+  if(setting !== 'all') {
+    var index = backwards ? (slidenumber + 'b') : slidenumber;
+    return actions[index];
+  } else {
+    return actions;
+  }
+}
+
+function displayActions(slidenumber, backwards) {
+  var data = getActionsFromDocument(slidenumber, backwards);
+  var actionlist = [];
+  var idlist = [];
+  if(data && data.element && data.actions && data.targets) {
+    for(var i=0; i < data.element.length; i++) {
+      var elementList = data.element[i].split(" ");
+      var value;
+      if(elementList.length > 2) {
+        value = elementList[0] + '-...-' + elementList[elementList.length-1];
+      } else if(elementList.length > 1) {
+        value = elementList[0] + '-' + elementList[1];
+      } else {
+        value = elementList[0];
+      }
+      var animationName = elementList && elementList[0];
+      var elementName = elementList && elementList[elementList.length-1];
+      actionlist.push(value + '->' + data.actions[i] + '(' + data.targets[i] + ')');
+      idlist.push(i);
+    }
+    
+  }
+  SELECT_ACTIONS.setAll(actionlist, idlist);
+
+}
+
+function addAction(slidenumber, backwards, compositionclass, listofelements, command, target) {
+  var index = backwards ? (slidenumber + 'b') : slidenumber;
+
+  if(!listofelements || !command || !compositionclass) {
+    return;
+  }
+
+  var data = getActionsFromDocument();
+  
+  // check whether already a animation is specified to this slide; not? create empty array
+  if(data === undefined) data = {};
+  if(!data[index]) data[index] = {};
+  if(!data[index].comp) data[index].comp = [];
+  if(!data[index].element) data[index].element = [];
+  if(!data[index].targets) data[index].targets = [];
+  if(!data[index].actions) data[index].actions = [];
+
+  // check whether the current action is already assigned to this slide
+  for(var i=0; i < data[index].comp.length; i++) {
+    if((data[index].comp[i] === compositionclass) && (data[index].element[i] === listofelements) && (data[index].targets[i] === target) && (data[index].actions[i] === command))
+      if(!confirm("The action is already specified. Are you sure to continue? No is recommended.")) return;
+  }
+
+  data[index].comp.push(compositionclass);
+  data[index].element.push(listofelements);
+  data[index].targets.push(target);
+  data[index].actions.push(command);
+  setEdgeScriptinDocument(data);
+}
+
+function removeAction(slidenumber, actiontodelete, backwards) {
+  var data = getActionsFromDocument();
+  actiontodelete = parseInt(actiontodelete);
+  if(isNaN(actiontodelete)) return;
+
+  var index = backwards ? (slidenumber + 'b') : slidenumber;
+
+  data[index].comp.splice(actiontodelete,1);
+  data[index].element.splice(actiontodelete,1);
+  data[index].targets.splice(actiontodelete,1);
+  data[index].actions.splice(actiontodelete,1);
+
+  if(data[index].element.length === 0)
+    delete data[index];
+
+
+  setEdgeScriptinDocument(data);
+
+}
+
+function setEdgeScriptinDocument(data) {
+  var dom = dw.getDocumentDOM();
+  var head = dom && dom.getElementsByTagName('HEAD');
+  head = head[0];
+  var script = head && dom.getElementById('EdgeAnimationActions');
+
+  if(isEmpty(data) && script) {
+    // so there is no data, but there is a script element; remove this!
+    script.outerHTML = '';
+    return;
+  }
+
+  if(!script) {
+    head.innerHTML += '<script id="EdgeAnimationActions"><\/script>';
+    script = dom.getElementById('EdgeAnimationActions');
+  }
+
+  var content = 'function EdgeAnimationActions() { var actions = ' + JSON.stringify(data) + '; return actions;}';
+  if(script)
+    script.innerHTML = content;
+}
+
+function displayHelp()
+{
+   // Replace the following call if you are modifying this file for your own use.
+   dwscripts.displayDWHelp(HELP_DOC);
+}
+
+function commandButtons()
+{
+  return new Array('OK',"clickedOK()",
+                   MM.BTN_Cancel,"window.close()",
+                   MM.BTN_Help,"displayHelp()");
+}
+
+
+function clickedOK()
+{
+
+  window.close();
+}
+
+function isEmpty(obj) {
+  for(var i in obj) { return false; }
+  return true;
+}
+//---------------     API FUNCTIONS    ---------------
+
+function isDOMRequired()
+{
+  // Return false, indicating that this object is available in code view.
+  return true;
+}
+
+function createComponentStr()
+{
+  return RETURN_TAG;
+}
+
+
+function getEdgeElements(raw_symbols) {
+    var holder = {};
+    var labels = getSymbolsWithLabels(raw_symbols);
+
+    var objs = ['stage'];
+    // Loop over each object
+    //for(var obj in raw_symbols) {
+    //while(objs.length > 0) {
+        var obj = objs[0];
+        var sym = raw_symbols[obj];
+
+
+        var stagechildlabels = getChildLabels(raw_symbols.stage, labels);
+        
+        for(var key in stagechildlabels) {
+            holder[key] = stagechildlabels[key].labels;
+
+            var symchild = raw_symbols[stagechildlabels[key].symbolName];
+            var symchildlabels = getChildLabels(symchild, labels);
+
+            for(var subkey in symchildlabels) {
+                holder[key][subkey] = symchildlabels[subkey].labels;
+            }
+        }
+
+
+        // // check for timeline labels
+        if(labels.stage.length > 0) {
+            for(var j = 0; j < labels.stage.length; j++) {
+                holder[j] = labels.stage[j];
+            }
+        }
+    //}
+
+    return holder;
+}
+
+function getChildLabels(sym, labels) {
+    var holder = {};
+
+    if(sym && sym.cn && sym.cn.dom.length > 0) {
+
+        // Loop over each child within object
+        for(var i = 0; i < sym.cn.dom.length; i++) {
+            var symbolName = sym.cn.dom[i].symbolName || sym.cn.dom[i].sN;
+            var elementName = sym.cn.dom[i].id;
+            // so this element is based on a symbol with labels
+            if(labels[symbolName]) {
+                //if(!holder.symbols]) holdersymbols = [];
+                holder[elementName] = {};
+                holder[elementName].symbolName = symbolName;
+                holder[elementName].labels = labels[symbolName];
+            }
+        }
+
+    }
+    return holder;
+}
+
+
+function getSymbolsWithLabels(raw_symbols) {
+    var holder = {};
+
+    for(var key in raw_symbols) {
+        var sym = raw_symbols[key];
+        var labels = [];
+
+        if(sym.tt && sym.tt.l) {
+            var labelArray = [];
+            for (var name in sym.tt.l) {
+                labels.push(name);
+            }
+        }
+
+        if(labels.length > 0) {
+            holder[key] = labels;
+        }
+    }
+
+    return holder;
+}
+
+function getDataFromDocument() {
+    var data = {};
+    var currentslide = -1;
+    var slides = nm.getSlideNodes();
+    var totalslides = slides.length;
+
+    if(slides !== undefined) {
+        for(var j = 0; j < slides.length; j++) {
+            var isactive = false;
+            var classlist = slides[j].class && slides[j].class.split(" ");
+            isactive = classlist && nm.contains(classlist, "active");
+
+            if(isactive) {
+                currentslide = j;
+            }
+        }
+    }
+    data.currentslide = currentslide;
+    data.totalslides = totalslides;
+    return data;
+}
+
+function initSlideBox(currentslide, totalslides) {
+  SELECT_CS.init();
+  var slidelist = [];
+  var idlist = [];
+  for(var i=0; i < totalslides; i++) {
+    slidelist.push('Slide ' + (i+1));
+    idlist.push(i);
+  }
+  SELECT_CS.setAll(slidelist, idlist);
+
+  SELECT_CS.pickValue(currentslide);
+}
+
+
+</script>
+
+
+<title>Nemo - Edge Actions</title>
+<link href="../fields.css" rel="stylesheet" type="text/css">
+</head>
+<body onLoad="initializeUI()">
+<form name="theForm">
+  <table border="0" cellspacing="4">
+    <tr> 
+      <td align="right" nowrap> 
+        Slide
+      </td>
+      <td>
+        <select name="selectCurrentSlide" onChange="updateUI('changedslide')" width="140">
+          <option></option>
+        </select>
+      </td>
+      <td align="left" valign="baseline"><mmtag><input type="checkbox" id="backwards" name="backwards" onclick="updateUI('setbackwards'); focus();" value="checkbox">Backwards</mmtag></td>
+      <td></td>
+    </tr>
+  
+    <tr> 
+      <td align="right" height="22" nowrap> 
+        Actions
+      </td>
+      <td colspan="2"
+        ><img src="../Shared/MM/Images/transparent.gif" width="5" height="1"
+        ><input type="image" name="addBtn" MMString:alt="Commands/Keyboard_Shortcuts/image/alt/Add" src="../Shared/MM/Images/btnAdd.png" onClick="updateUI('addaction');"
+        ><img src="../Shared/MM/Images/transparent.gif" width="5" height="1"
+        ><input type="image" name="minusBtn" MMString:alt="Commands/Keyboard_Shortcuts/image/alt/Remove" src="../Shared/MM/Images/btnDel.png" onClick="updateUI('removeaction');focus();"
+     ></td>
+      <td></td>
+    </tr>
+    <tr> 
+      <td> 
+      </td>
+      <td colspan="2"> 
+        <select name="actionList" size="10" style="width:380px">
+          <option selected></option>
+        </select>
+      </td>
+      <td></td>
+    </tr>
+  </table>
+        </form>
+</body>
+</html>

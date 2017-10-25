@@ -1,0 +1,58 @@
+<!-- MENU-LOCATION=NONE -->
+<!DOCTYPE HTML SYSTEM "-//Macromedia//DWExtension layout-engine 5.0//dialog">
+
+<html xmlns:MMString="http://www.macromedia.com/schemes/data/string/">
+
+<head>
+
+  <!-- Copyright 2008 Adobe Systems Incorporated.  All rights reserved. -->
+  <script>
+    function getAlert() {
+      var i = document.testForm.mySelect.selectedIndex;
+      if (i >= 0) {
+        alert("Selected index: " + i + "\n" + "Selected text " + document.testForm.mySelect.options[i].text);
+      } else {
+        alert("Nothing is selected" + "\n" + "or you entered a value\nspecial value i: " + i);
+      }
+    }
+
+    function commandButtons() {
+      return new Array("Ok", "getAlert()", "Cancel", "window.close()");
+    }
+  
+
+
+  </script>
+
+
+  <title>Nemo - Edge Actions</title>
+  <link href="../fields.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<!-- <body onLoad="initializeUI()"> -->
+<body>
+  <div name="test">
+    <form name="myForm">
+      <table>
+        <tr>
+          <td colspan="2">
+            <h4>Select your favorite</h4>
+          </td>
+        </tr>
+        <tr>
+          <td>Sport:</td>
+          <td>
+            <select name="mySelect" editable="true" style="width:150px" editText="Editable Text">
+              <option value="">Baseball</option>
+              <option value="">Football</option>
+              <option value="">Soccer</option>
+            </select>
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</body>
+
+</html>
