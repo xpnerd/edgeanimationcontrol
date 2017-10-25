@@ -8,11 +8,17 @@ module.exports = function (grunt) {
       },
       dist: {
         src: ['src/json-part_nmscripts.js', 'src/cust-part_nmscripts.js'],
-        dest: 'dist/new_nmscripts.js',
+        dest: '../../../AppData/Roaming/Adobe/Dreamweaver CC 2014.1/en_US/Configuration/Shared/Nemo/new_nmscripts.js',//'dist/new_nmscripts.js',
       },
     },
     copy: {
+      main: {
+        files: [
+          {expand: true, flatten: true, src: ['src/Commands/*'], dest: '../../../AppData/Roaming/Adobe/Dreamweaver CC 2014.1/en_US/Configuration/Commands/', filter: 'isFile'},
 
+          {expand: true, flatten: true, src: ['src/Objects/Nemo/*'], dest: '../../../AppData/Roaming/Adobe/Dreamweaver CC 2014.1/en_US/Configuration/Objects/Nemo/', filter: 'isFile'},
+        ],
+      },
     },
   });
 

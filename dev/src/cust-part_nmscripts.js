@@ -30,7 +30,7 @@ nm.getStageHeight = nemo_getStageHeight;
 
 nm.getAnimeName = nemo_getAnimeName;
 nm.isModified = nemo_isModified;
-nm.importFiles = nemo_importFiles;
+nm.importEdgeFiles = nemo_importEdgeFiles;
 nm.insertTag = nemo_insertTag;
 nm.addEdgeAnimation = nemo_addEdgeAnimation;
 

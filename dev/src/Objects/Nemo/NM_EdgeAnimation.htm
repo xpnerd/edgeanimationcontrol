@@ -1,0 +1,71 @@
+<!-- MENU-LOCATION=NONE -->
+<html xmlns:MMString="http://www.macromedia.com/schemes/data/string/">
+
+<head>
+	<!-- Copyright 2000, 2001, 2002, 2003 Macromedia, Inc. All rights reserved. -->
+	<title>NM_Animation</title>
+
+	<script type="text/javascript" src="../../Shared/Common/Scripts/dwscripts.js"></script>
+	<script type="text/javascript" src="../../Shared/Nemo/new_nmscripts.js"></script>
+	<script type="text/javascript">
+
+	// TEST
+
+		function isDOMRequired() {
+			// Return false, indicating that this object is available in code view.
+			return true;
+		}
+
+		function isAsset() {
+			return true;
+		}
+
+		function canInsertObject() {
+			return nme.isValidDocument();
+		}
+
+		function insertObject() {
+			alert('test');
+			//var pathy = dw.doURLEncoding("file:///C:\/Users\/Xiao Ming\/olo\/designers\/test-batch\/test-topic_2\/animations_src\/Oog2\/publish\/web/Oog2_edge.js");
+			edge_animation = nme.addEdgeAnimation();
+
+			
+			if (edge_animation) {
+				return;
+			} else { 
+				return "Adding was not accomplished";
+			}
+				
+		}
+
+		/* function insertObject() {
+			var dom = dw.getDocumentDOM();
+			var uniqueId = dwscripts.getUniqueId("nm_edgeanimation");
+			var activeSlide = nm.getCurrentSlide();
+			var slideWidth = nm.getStageWidth();
+			var slideHeight = nm.getStageHeight();
+			var top = 260;
+			var left = 340; // 500 is default width
+			var width = slideWidth - 20 - left;
+			var height = slideHeight - 20 - top;
+			var errMsg = "";
+
+			if (activeSlide != -1) {
+				activeSlide.innerHTML = '<div class="EdgeAnimation" id="' + uniqueId + '" style="position: absolute; top: ' + top + 'px; left: ' + left + 'px; width: ' + width + 'px; height: ' + height + 'px;"></div>' + activeSlide.innerHTML;
+				var node = dom.getElementById(uniqueId);
+				dom.setSelectedNode(node, true, true);
+				node.removeAttribute("id"); // because the id will be set by the Nemo Navigtor (if you include an animation)
+			} else {
+				errMsg = "Could not find the active slide. Please select a slide first.";
+			}
+
+			return errMsg;
+		} */
+
+	</script>
+</head>
+
+<body>
+</body>
+
+</html>
