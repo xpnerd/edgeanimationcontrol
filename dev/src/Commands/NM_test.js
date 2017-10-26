@@ -14,33 +14,44 @@ function updateUI() {
 
 }
 
-function showValue(){
+function showValue() {
     var value = parseInt(SELECT_ANIME.getValue());
 
     alert(value);
 }
 
-function delAnimations(){
-    var list_index_str = SELECT_ANIME.getValue('multiple');
-    var list_label_str = SELECT_ANIME.get('multiple');
+function delAnimations() {
+
+    // made because of bug in .del() which deletes the wrong items from a list, since splicing makes the list smaller but this is not handled in the list containing this info.
+    var object_options = SELECT_ANIME.object.options;
     var list_index_int = [];
+    var list_label_str = SELECT_ANIME.get('multiple');
 
-    if (confirm("Are you sure you want to delete/remove all selected animations?\n" + list_label_str.join("\n"))){
-        for (var i = 0; i < list_index_str.length; i++) {
-        var element = parseInt(list_index_str[i]);
-
-        if (!isNaN(element)) {
-            list_index_int[i] = element;
-        } else {
-            alert("Unexpect ERROR: value is NaN");
+    if (confirm("Are you sure you want to delete/remove all selected animations?\n" + list_label_str.join("\n"))) {
+        for (var i = 0; i < object_options.length; i++) {
+            if (object_options[i].selected){
+                alert(list_label_str[i]);
+            }
+            
+                        // it is buggy here (it deletes too much)
+                        
+            /* if (object_options[i].selected) {
+                SELECT_ANIME.del(i);
+                break;
+            } */
         }
-        
-        // it is buggy here (it deletes too much)
         SELECT_ANIME.del();
+        // It auto updates, hidden in .del()!
     }
-    // It auto updates, hidden in .del()!
-}
-    
+
+    /**
+     * Private function that deletes one item, which makes the objects_options list smaller, 
+     * thus keeping track of the changing index. This cannot be done otherwise, since .del() resets to the first element.
+     * 
+     */
+    function deleteItem() {
+        
+    }
 }
 
 function dispAnimations(list_animations) {

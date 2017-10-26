@@ -17,6 +17,8 @@ module.exports = function (grunt) {
           {expand: true, flatten: true, src: ['src/Commands/*'], dest: '../../../AppData/Roaming/Adobe/Dreamweaver CC 2014.1/en_US/Configuration/Commands/', filter: 'isFile'},
 
           {expand: true, flatten: true, src: ['src/Objects/Nemo/*'], dest: '../../../AppData/Roaming/Adobe/Dreamweaver CC 2014.1/en_US/Configuration/Objects/Nemo/', filter: 'isFile'},
+
+          {expand: true, flatten: true, src: ['src/ListControlClass.js'], dest: '../../../AppData/Roaming/Adobe/Dreamweaver CC 2014.1/en_US/Configuration/Shared/Nemo/'},
         ],
       },
     },
