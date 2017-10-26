@@ -41,6 +41,8 @@ nm.addEdgeAnimation = nemo_addEdgeAnimation;
  */
 
 var class_animation = "EdgeAnimation";                      // div class of an (Edge) Animation
+var id_edge_actions = "EdgeAnimationActions";
+var delimiter_id_name = "_";
 var delimiter_class_space = ' ';
 var delimiter_file_edge = "\_edge.js";                      // Edge Animation (default) file name addition.
 var delimiter_folder_nemo = '\/_web';                       // Nemo (default) web folder
@@ -676,6 +678,89 @@ function nemo_insertTag(divTag, divID) {
 }
 
 /**
+ * Deletes the EdgeActions of a specific animation from the current DOM.
+ * 
+ * @param {regex} REGEX_NAME - an valid RegEx.
+ * @param {HTMLElement} dom - current Document DOM 
+ */
+function nemo_delEdgeActions(REGEX_NAME, dom) {
+    var dom_temp;
+    if (dom == null) {
+        dom_temp = dw.getDocumentDOM();
+    } else {
+        dom_temp = dom;
+    }
+
+    var div_element = dom_temp.getElementById(class_animation + delimiter_id_name + edge_animation.name.file);  
+    var script_element = dom_temp.getElementById(id_edge_actions);
+
+    if(div_element !== undefined && confirm("Would you also remove the animation container from the stage?")) {
+        div_element.outerHTML = ''; // remove div element, .getElementById("my-element").remove(); or .getElementsByClassName("my-elements").remove();
+    } else if(node_element !== undefined) {
+        if(node_element.getAttribute('id')) node_element.removeAttribute('id');
+        node_element.setAttribute('class', ANIMATIONCLASS);
+        if(node_element.getAttribute('data-name')) node_element.removeAttribute('data-name');
+    }
+
+    if (script_element) {
+        var script = script_element.innerHTML;
+        var dom_actions;
+        var new_actions;
+
+        // Make the functions description runnable
+        if(script !== undefined) eval(script);
+        if(typeof EdgeAnimationActions === 'function') {
+            dom_actions = EdgeAnimationActions();
+        }
+
+        if (dom_actions) {
+            new_actions = dom_actions;
+            var removeActions = false;
+            var didIAsked = false;
+
+            for(var key in dom_actions) {
+                var list_element = dom_actions[key].element;
+                
+                if(list_element && list_element.length > 0) {
+                    
+                    for(var i=0; i < list_element.length; i++) {
+                        var str = list_element[i];
+                        var checkAction = REGEX_NAME.test(str);
+                        
+                        if(checkAction && !removeActions && !didIAsked) {
+                            if(confirm("Some actions are found in Edge Actions. Would you like to remove these? Yes is recommended.")) {
+                                removeActions = true;
+                            }
+                            didIAsked = true;
+                        }
+
+                        // Remove this action, if the user would like so
+                        if(removeActions && checkAction) {
+                            var theelement = dom_actions[key].element;
+                            var thetargets = dom_actions[key].targets;
+                            var theactions = dom_actions[key].actions;
+
+                            theelement = arraySplice(theelement, i, 1);
+                            thetarget = arraySplice(thetargets, i, 1);
+                            theactions = arraySplice(theactions, i, 1);
+
+                            new_actions[key].element = theelement;
+                            new_actions[key].targets = thetargets;
+                            new_actions[key].actions = theactions;
+                        }
+                    }
+                }
+            }
+
+            if(removeActions) {
+                var content = 'function EdgeAnimationActions() { var actions = ' + JSON.stringify(new_actions) + '; return actions;}';
+                script_element.innerHTML = content;
+            }
+        }
+    }
+}
+
+/**
  * Function that makes a list of EdgeAnimation objects based on the contents
  * it gets from the <tt>abs_animations_path</tt> folder.
  * 
@@ -741,7 +826,7 @@ function nemo_getEdgeAnimations() {
  * - Imports Files,
  * - Inserts Tag.
  * 
- * @returns {object | boolean} EdgeAnimation object or false.
+ * @returns {Object | boolean} EdgeAnimation object or false.
  */
 function nemo_addEdgeAnimation() {
     nemo_initPaths(); // can also be called outside this!
@@ -780,13 +865,25 @@ function nemo_addEdgeAnimation() {
     return (isAdded ? edge_animation : isAdded);
 }
 
+/**
+ * Deletes the animation files based on the info that is 
+ * contained in the EdgeAnimation object, which is passed as argument.
+ * 
+ * @param {Object} edge_animation - EdgeAnimation object 
+ */
 function nemo_delEdgeAnimation(edge_animation) {
     if (edge_animation instanceof EdgeAnimation) {
-        // confirm deletion.
+        // Confirmation for deletion/removal is done in a higher level function.
+        
+        // (1) Check folder existence and delete.
+        var isSucces = DWfile.exists(edge_animation.path.dest) && DWfile.remove(edge_animations.path.dest);
 
-        // Check for EdgeActions and remove actions
+        // (2) Check for EdgeActions and remove actions and optionally the div-container
+        nemo_delEdgeActions(new RegExp('\\b' + edge_animation.name.file + '\\b'));
 
-        // confirm deletion animation container...
+        if (!isSucces) alert('Unexpected ERROR: animation folder does not exist anymore or removal failed.');
+
+        return isSucces;
     } else {
         alert('ERROR: the object that has to be deleted/removed is not an EdgeAnimation object.');
         return false;
@@ -819,32 +916,15 @@ var EdgeAnimation = (function () {
             "modidate":  ""
         };
         this.path = {
-            "abs":      "",             // Absolute path to current source folder, ends uri without '/'.
-            "rel":      "",             // Relative path to source folder, ends uri without '/'.
+            "abs":      "",             // Absolute path to current source folder, ends uri without '/'. (.../this.name.folder/publish/web)
+            "rel":      "",             // Relative path to source folder, ends uri without '/'. (.../this.name.folder/publish/web)
             "srcfile":  "",             // Absolute path to current source file, ends URI with '_edge.js'.
-            "dest":     "",             // Absolute path to current destination folder.
-            "destfile": ""              // Absolute path to current destination file.
+            "dest":     "",             // Absolute path to current destination folder. (.../animations/this.name.file)
+            "destfile": ""              // Absolute path to current destination file. (.../animations/this.name.file/this.name.file_edge.js)
         };
 
         this.DOMid
     }
-
-    /**
-    * 
-    * initFromDOMNode initializes the EdgeAnimation object based on the 
-    * information specified in
-    *
-    * @name EdgeAnimation#initFromDOMNode
-    * @param  {[type]} EdgeAnimationDOMNode [description]
-    * @return {[type]}                      [description]
-    */
-    EdgeAnimation.prototype.initFromDOMNode = function (EdgeAnimationDOMNode) {
-
-    };
-
-    /* EdgeAnimation.prototype.initFromFilePath = function () {
-
-    }; */
 
     /**
      * The first function that has to be called when object is created from reading an
@@ -925,7 +1005,7 @@ var EdgeAnimation = (function () {
         var version = source_text.match(REGEX_ATTR_VERSION_NUM);
         version = version && version[2];
         
-        this.attributes.id = this.attributes.class + "_" + this.name.file.replace(REGEX_CHANGE_SPECIAL, "");
+        this.attributes.id = this.attributes.class + delimiter_id_name + this.name.file.replace(REGEX_CHANGE_SPECIAL, "");
         
 
         if (source_text == null) {
