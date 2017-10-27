@@ -19,7 +19,6 @@ nm.recurseTask = nemo_recurseTask;
 
 nm.copyFiles = nemo_copyFiles;
 
-nm.isValidAnimeFolder = nemo_isValidAnimeFolder;
 nm.getParentFolderPath = nemo_getParentFolderPath;
 nm.getFolderPathBrowse = nemo_getFolderPathBrowse;
 
@@ -28,11 +27,17 @@ nm.getCurrentSlide = nemo_getCurrentSlide;
 nm.getStageWidth = nemo_getStageWidth;
 nm.getStageHeight = nemo_getStageHeight;
 
+nm.isValidAnimeFolder = nemo_isValidAnimeFolder;
+nm.isValidAnimeDiv = nemo_isValidAnimeDiv;
 nm.getAnimeName = nemo_getAnimeName;
 nm.isModified = nemo_isModified;
 nm.importEdgeFiles = nemo_importEdgeFiles;
 nm.insertTag = nemo_insertTag;
+nm.delEdgeActions = nemo_delEdgeActions;
+nm.getEdgeAnimations = nemo_getEdgeAnimations;
 nm.addEdgeAnimation = nemo_addEdgeAnimation;
+nm.changeEdgeAnimation = nemo_changeEdgeAnimation;
+nm.delEdgeAnimation = nemo_delEdgeAnimation;
 
 /*
  * CONSTANTS
@@ -84,6 +89,7 @@ var REGEX_ATTR_VERSION = /vid\=/;
 var REGEX_ATTR_VERSION_NUM = /(x1\=\')([0-9])\./;               // main version number. We try to support versions 5.x.x or higher.
 var REGEX_ATTR_UPDATE = new RegExp(modification_str_update_path + "[^" + delimiter_modification + "]*"); //RegEx, /\/\/updatePath:[^*]*/;
 var REGEX_ATTR_MODIFICATION = new RegExp(modification_str_date + "[^" + delimiter_modification + "]*");  //RegEx, /\/\/modificationDate:[^*]*/;
+var REGEX_ATTR_CLASS = new RegExp('\\b' + class_animation + '\\b');
 var REGEX_CHANGE_IMG_LOC = /(var im=')[\S\s]*?'/g;
 var REGEX_CHANGE_SCRIPTS = /scripts=\[[^\]]*\]/;
 var REGEX_CHANGE_SPECIAL = /^[_\d]*| /g; //remove any digits and underscores in front of the first proper character and any spaces.
@@ -313,62 +319,6 @@ function nemo_copyFiles(src_folder, folder_str_name) {
  */
 
 /**
- * Checks if input folder is an eligible animation folder, i.e. is published
- * If it is eligible it will return the published folder.
- * 
- * @param {string} folder_path - absolute folder URI
- * @example
- * // returns (if valid): "file:///C:/.../vermogen_10/publish/web"
- * nemo_isValidAnimeFolder("file:///C:/.../vermogen_10");
- * @example
- * // returns (if valid): "file:///C:/.../vermogen_10/publish/web"
- * nemo_isValidAnimeFolder("file:///C:/.../vermogen_10/publish");
- * @example
- * // returns (if valid): "file:///C:/.../vermogen_10/publish/web"
- * nemo_isValidAnimeFolder("file:///C:/.../vermogen_10/publish/web");
- * @example
- * // returns (if unvalid): false
- * nemo_isValidAnimeFolder(true);
- * @returns {string | boolean} URI or false.
- */
-function nemo_isValidAnimeFolder(folder_path) {
-    try {
-        if (typeof folder_path !== 'string' && typeof folder_path != 'boolean') {
-            throw "ERROR: Wrong input; nemo_isValidAnimeFolder's argument is of type 'string' or 'boolean'.";
-        }
-    } catch(err) {
-        alert(err);
-    }
-
-    if (folder_path === "" || typeof folder_path === 'boolean') {
-        publish_path = false;
-    } else if (REGEX_TRAILING_PUBLISHWEB.test(folder_path)) {
-        // it is a "ANIMATION/publish/web/" path
-        publish_path = folder_path;
-    } else if (REGEX_TRAILING_PUBLISH.test(folder_path)) {
-        // it is a "ANIMATION/publish/" path
-        publish_path = folder_path + folder_web;
-    } else if (REGEX_TRAILING_PUBLISHWEBIMG.test(folder_path)) {
-        // it is a "ANIMATION/publish/web/images" path
-        publish_path = nemo_getStringSliceUpTo(folder_path, delimiter_path);
-    } else if (REGEX_TRAILING_IMG.test(folder_path) || REGEX_TRAILING_INCLUDES.test(folder_path)) {
-        // it is a "ANIMATION/images" or "ANIMATION/edge_includes" path
-        publish_path = nemo_getStringSliceUpTo(folder_path, delimiter_path) + folder_publishweb;
-    } else {
-        publish_path = folder_path + folder_publishweb;
-    }
-
-    // Condition makes it possible that publish_path can be false,
-    // alert message can be defined at one location, instead of multiple.
-    if (publish_path && DWfile.exists(publish_path)) {
-        return publish_path;
-    } else {
-        alert("Published folder does not exist.\nPlease, make sure to selecht an (published) Edge Animation folder.\nOtherwise publish (Ctrl+Alt+S) your animation first.");
-        return false;
-    }     
-}
-
-/**
  * Extracts the absolute path from the input (<tt>path</tt>), from beginning up to (not including) the last '/'.
  * If given a URI it thus returns the URI of the parent folder.
  *
@@ -536,6 +486,85 @@ function nemo_getStageHeight(dom) {
  * 
  * functions with focus on (Edge)Animations.
  */
+
+/**
+ * Checks if input folder is an eligible animation folder, i.e. is published
+ * If it is eligible it will return the published folder.
+ * 
+ * @param {string} folder_path - absolute folder URI
+ * @example
+ * // returns (if valid): "file:///C:/.../vermogen_10/publish/web"
+ * nemo_isValidAnimeFolder("file:///C:/.../vermogen_10");
+ * @example
+ * // returns (if valid): "file:///C:/.../vermogen_10/publish/web"
+ * nemo_isValidAnimeFolder("file:///C:/.../vermogen_10/publish");
+ * @example
+ * // returns (if valid): "file:///C:/.../vermogen_10/publish/web"
+ * nemo_isValidAnimeFolder("file:///C:/.../vermogen_10/publish/web");
+ * @example
+ * // returns (if unvalid): false
+ * nemo_isValidAnimeFolder(true);
+ * @returns {string | boolean} URI or false.
+ */
+function nemo_isValidAnimeFolder(folder_path) {
+    try {
+        if (typeof folder_path !== 'string' && typeof folder_path != 'boolean') {
+            throw "ERROR: Wrong input; nemo_isValidAnimeFolder's argument is of type 'string' or 'boolean'.";
+        }
+    } catch(err) {
+        alert(err);
+    }
+
+    if (folder_path === "" || typeof folder_path === 'boolean') {
+        publish_path = false;
+    } else if (REGEX_TRAILING_PUBLISHWEB.test(folder_path)) {
+        // it is a "ANIMATION/publish/web/" path
+        publish_path = folder_path;
+    } else if (REGEX_TRAILING_PUBLISH.test(folder_path)) {
+        // it is a "ANIMATION/publish/" path
+        publish_path = folder_path + folder_web;
+    } else if (REGEX_TRAILING_PUBLISHWEBIMG.test(folder_path)) {
+        // it is a "ANIMATION/publish/web/images" path
+        publish_path = nemo_getStringSliceUpTo(folder_path, delimiter_path);
+    } else if (REGEX_TRAILING_IMG.test(folder_path) || REGEX_TRAILING_INCLUDES.test(folder_path)) {
+        // it is a "ANIMATION/images" or "ANIMATION/edge_includes" path
+        publish_path = nemo_getStringSliceUpTo(folder_path, delimiter_path) + folder_publishweb;
+    } else {
+        publish_path = folder_path + folder_publishweb;
+    }
+
+    // Condition makes it possible that publish_path can be false,
+    // alert message can be defined at one location, instead of multiple.
+    if (publish_path && DWfile.exists(publish_path)) {
+        return publish_path;
+    } else {
+        alert("Published folder does not exist.\nPlease, make sure to selecht an (published) Edge Animation folder.\nOtherwise publish (Ctrl+Alt+S) your animation first.");
+        return false;
+    }     
+}
+
+/**
+ * Simple function that checks if the selected element is an EdgeAnimation
+ * div-container.
+ * 
+ * @param {HTMLElement} [dom = dw.getDocumentDOM()] - current document DOM
+ * @returns {boolean} true or false 
+ */
+function nemo_isValidAnimeDiv(dom) {
+    var dom_temp;
+    if (dom == null) {
+        dom_temp = dw.getDocumentDOM();
+    } else {
+        dom_temp = dom;
+    }
+
+	var the_node = dom_temp.getSelectedNode();s
+	if(REGEX_ATTR_CLASS.test(the_node.class)) {
+		return true;
+	} else {
+		return false;
+	}
+}
 
 /**
  * Checks if there exists an unique Edge Animation file in the <tt>folderPath</tt>.
@@ -829,11 +858,11 @@ function nemo_getEdgeAnimations() {
  * @returns {Object | boolean} EdgeAnimation object or false.
  */
 function nemo_addEdgeAnimation() {
-    nemo_initPaths(); // can also be called outside this!
-    var error = false;
+    // NOTICE: make sure nemo_initPaths() is called before calling any of these functions!
+    // NOTICE: make sure it is called uniquely per task, otherwise there is crosstalk between tabs/documents/files.
     
     var edge_animation = new EdgeAnimation();
-    
+    var dom = dw.getDocumentDOM();
 
     /**
      * use of short-circuiting to write everything in a short way.
@@ -858,11 +887,50 @@ function nemo_addEdgeAnimation() {
     // (3) import all files, copying images, modifying and write publish edge file.
     isAdded = isAdded && nemo_importEdgeFiles(edge_animation, source_text);
 
-    // (4) insert tag....
-    isAdded = isAdded && nemo_insertTag(edge_animation.getDivTag(), edge_animation.attributes.id);
+    // (4) insert tag.... or change tag.
+    if (nemo_isValidAnimeDiv(dom)) {
+        isAdded = isAdded && nemo_changeEdgeAnimation(edge_animation, dom);
+    } else {
+        isAdded = isAdded && nemo_insertTag(edge_animation.getDivTag(), edge_animation.attributes.id);
+    }  
 
     // If all steps went well it returns an EdgeAnimation object.
     return (isAdded ? edge_animation : isAdded);
+}
+
+/**
+ * Changes/assigns the div-container information, such that another animation
+ * is played from this div.
+ * It does not check if is a valid EdgeAnimation container, this is done by the
+ * canInspectSelection (in the inspector) or by nemo_addEdgeAnimation().
+ * 
+ * @param {EdgeAnimation} edge_animation - EdgeAnimation object 
+ * @param {HTMLElement} [dom = dw.getDocumentDOM()] - current document DOM
+ * @returns {boolean} true for succes, false for failure.
+ */
+function nemo_changeEdgeAnimation(edge_animation, dom) {
+    var dom_temp;
+
+    if (dom == null) {
+        dom_temp = dw.getDocumentDOM();
+    } else {
+        dom_temp = dom;
+    }
+
+    if (edge_animation instanceof EdgeAnimation) {
+        var the_node = dom_temp.getSelectedNode();
+
+        the_node.setAttribute('id', edge_animation.attributes.id);
+        the_node.setAttribute('class', class_animation + delimiter_class_space + edge_animation.attributes.compclass);
+        the_node.setAttribute('height', edge_animation.attributes.height + 'px');
+        the_node.setAttribute('width', edge_animation.attributes.width + 'px');
+        the_node.setAttribute('data-name', edge_animation.name.file);
+
+        return true;
+    } else {
+        alert('Unexpected ERROR: not an instance of EdgeAnimation');
+        return false;
+    }
 }
 
 /**

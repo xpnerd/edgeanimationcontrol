@@ -1,0 +1,87 @@
+<!-- MENU-LOCATION=NONE -->
+<!DOCTYPE HTML SYSTEM "-//Macromedia//DWExtension layout-engine 5.0//dialog">
+
+<html xmlns:MMString="http://www.macromedia.com/schemes/data/string/">
+
+<head>
+
+  <!-- Copyright 2008 Adobe Systems Incorporated.  All rights reserved. -->
+  <!-- <script type="text/javascript" src="../Shared/Common/Scripts/ListControlClass.js"></script> -->
+  <script type="text/javascript" src="../Shared/Common/Scripts/dwscripts.js"></script>
+  <script type="text/javascript" src="../Shared/Nemo/new_nmscripts.js"></script>
+  <script type="text/javascript" src="../Shared/Nemo/ListControlClass.js"></script>
+  <script type="text/javascript" src="NM_test.js"></script>
+
+  <script>
+    /*
+     * Dreamweaver Commands API, see p.138 in the Dreamweaver CS5 Extending
+     */
+
+    /** 
+     * Function that determines whether the menu item should be disables. 
+     * @returns {boolean} True for enable and false for disable.
+     */
+    /* function canAcceptCommand() {
+      return;
+    } */
+
+    /**
+     * If defined: Process any arguments that pass from the menu item
+     * or from dreamweaver.runCommand() [see: Dreamweaver API Ref.]
+     */
+    /* function receiveArguments() {
+      
+    } */
+
+    /**
+     * Determines which buttons appear on the right side of the options
+     * dialog box and what code should execute when user clicks the button.
+     * @returns {Object} such as: new Array("buttonText", "myFunction()").
+     */
+    function commandButtons() {
+      return new Array("Add \& insert", "addAnimation()", 
+                      "Insert", "insertAnimation()",
+                      "Assign", "changeAnimation()", 
+                      "Remove", "delAnimations()", 
+                      "Cancel", "window.close()");
+    }
+
+    /*
+     * Nemo API onload functions here, otherwise dreamweaver has problems...
+     */
+    /* function initUI() {
+      // "https://stackoverflow.com/questions/19590865/from-an-array-of-objects-extract-value-of-a-property-as-array"
+      var list_animations = getObjects();
+      dispAnimations(list_animations);
+    } */
+  </script>
+
+
+  <title>Nemo - Edge Animations</title>
+  <link href="../fields.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<!-- <body onLoad="initUI()"> -->
+
+<body onload="initUI()">
+  <div name="edgeAnimationsForm">
+    <form name="edgeAnimationsForm">
+      <table>
+        <tr>
+          <td colspan="2">
+            <h2>Edge Animations</h2>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <select multiple name="listAnimations" size="13" style="width:200px">
+              <option selected="false"></option>
+            </select>
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</body>
+</html>

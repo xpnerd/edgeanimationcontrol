@@ -2,7 +2,7 @@
 // Copyright 1998-2006 Adobe Macromedia Software LLC and its licensors. All rights reserved.
 
 /**
- * FIXED BUG in ListControl_del() --- by Xiaoming op de Hoek, 
+ * FIXED BUG in ListControl_del(); DreamWeaver CC 2014.1 --- by Xiaoming op de Hoek, 
  * 
  * - When index 0 would be used as input argument it would still delete multiple values. 
  */
