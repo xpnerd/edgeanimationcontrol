@@ -92,7 +92,8 @@ var REGEX_ATTR_MODIFICATION = new RegExp(modification_str_date + "[^" + delimite
 var REGEX_ATTR_CLASS = new RegExp('\\b' + class_animation + '\\b');
 var REGEX_CHANGE_IMG_LOC = /(var im=')[\S\s]*?'/g;
 var REGEX_CHANGE_SCRIPTS = /scripts=\[[^\]]*\]/;
-var REGEX_CHANGE_SPECIAL = /^[_\d]*| /g; //remove any digits and underscores in front of the first proper character and any spaces.
+var REGEX_CHANGE_SPECIAL = / /g; // Remove any spaces.
+/// /^[_\d]*| /g; //remove any digits and underscores in front of the first proper character and any spaces.
 
 /*
  * LOCAL VARIABLES
@@ -130,9 +131,11 @@ function nemo_initPaths() {
      * For robustness we just go twice up in the tree, instead of cutting off everthing after "/_web".
      * 
      * nemo_getStringSliceUpTo(abs_doc_path, delimiter_folder_nemo);
+     * 
+     * Same idea for abs_dest_path
      */
     abs_root_path = nemo_getParentFolderPath(abs_folder_path);
-    abs_dest_path = abs_root_path + delimiter_folder_nemo;
+    abs_dest_path = abs_folder_path; //abs_root_path + delimiter_folder_nemo;
     abs_animations_path = abs_dest_path + folder_anime;
     abs_images_path = abs_dest_path + folder_image;
 }
@@ -558,7 +561,7 @@ function nemo_isValidAnimeDiv(dom) {
         dom_temp = dom;
     }
 
-	var the_node = dom_temp.getSelectedNode();s
+	var the_node = dom_temp.getSelectedNode();
 	if(REGEX_ATTR_CLASS.test(the_node.class)) {
 		return true;
 	} else {
@@ -638,14 +641,26 @@ function nemo_isModified(modification_dest, modification_src, path_dest_file) {
 
 /**
  * A function that imports all the files from the published folder to the destination folder.
- * It handles copying and writing.
+ * It handles copying and writing, it is thus also handling updating of an EdgeAnimation.
  * 
  * @param {Object} edge_animation - EdgeAnimation object.
- * @param {string} source_text - the read file contents (i.e. text)
+ * @param {string} [source_text = DWfile.read(edge_animation.path.srcfile)] - the read file contents (i.e. text)
  * @returns {boolean} True for succes, False for failure. 
  */
-function nemo_importEdgeFiles(edge_animation, source_text) {
+function nemo_importEdgeFiles(edge_animation, text) {
     var error = false;
+    var isModified = false;
+
+    if (text == null) {
+        source_text = DWfile.read(edge_animation.path.srcfile);
+        
+        if (!source_text){
+            alert("Unexpected ERROR: when updating we could not get any source contents.");
+            return false;
+        }
+    } else {
+        source_text = text;
+    }
 
     if (!DWfile.exists(abs_animations_path)) DWfile.createFolder(abs_animations_path);
     if (!DWfile.exists(abs_images_path)) DWfile.createFolder(abs_images_path);
@@ -657,7 +672,12 @@ function nemo_importEdgeFiles(edge_animation, source_text) {
             alert('ERROR: Destination file already exists, but does not contain modification date');
             error = true;
         } else {
-            error = !nemo_isModified(nemo_getStringTrailing(list_str_modate[0], modification_str_date), edge_animation.attributes.modidate, edge_animation.path.destfile);
+            isModified = nemo_isModified(nemo_getStringTrailing(list_str_modate[0], modification_str_date), edge_animation.attributes.modidate, edge_animation.path.destfile);
+            error = !isModified;
+
+            // We do it this, so when not modified importing also concludes with true.
+            // However it does not copy stuff and can insert a div-container anyway...
+            if (!isModified) return true;
         }
     } else {
         DWfile.createFolder(edge_animation.path.dest);  
@@ -709,10 +729,11 @@ function nemo_insertTag(divTag, divID) {
 /**
  * Deletes the EdgeActions of a specific animation from the current DOM.
  * 
- * @param {regex} REGEX_NAME - an valid RegEx.
+ * @param {string} file_name - an valid edge file name string.
  * @param {HTMLElement} dom - current Document DOM 
  */
-function nemo_delEdgeActions(REGEX_NAME, dom) {
+function nemo_delEdgeActions(file_name, dom) {
+    var REGEX_NAME = new RegExp('\\b' + file_name + '\\b');
     var dom_temp;
     if (dom == null) {
         dom_temp = dw.getDocumentDOM();
@@ -720,15 +741,15 @@ function nemo_delEdgeActions(REGEX_NAME, dom) {
         dom_temp = dom;
     }
 
-    var div_element = dom_temp.getElementById(class_animation + delimiter_id_name + edge_animation.name.file);  
+    var div_element = dom_temp.getElementById(class_animation + delimiter_id_name + file_name);  
     var script_element = dom_temp.getElementById(id_edge_actions);
 
     if(div_element !== undefined && confirm("Would you also remove the animation container from the stage?")) {
         div_element.outerHTML = ''; // remove div element, .getElementById("my-element").remove(); or .getElementsByClassName("my-elements").remove();
-    } else if(node_element !== undefined) {
-        if(node_element.getAttribute('id')) node_element.removeAttribute('id');
-        node_element.setAttribute('class', ANIMATIONCLASS);
-        if(node_element.getAttribute('data-name')) node_element.removeAttribute('data-name');
+    } else if(div_element !== undefined) {
+        if(div_element.getAttribute('id')) div_element.removeAttribute('id');
+        div_element.setAttribute('class', class_animation);
+        if(div_element.getAttribute('data-name')) div_element.removeAttribute('data-name');
     }
 
     if (script_element) {
@@ -812,7 +833,7 @@ function nemo_getEdgeAnimations() {
 
             // Check if there exists an _edge.js file
             for (var j = 0; j < list_files.length; j++) {
-                var element_string = file_list[j];
+                var element_string = list_files[j];
 
                 if (REGEX_TRAILING_EDGEFILE.test(element_string)) {
                     numValidEdgeAnime++;
@@ -825,10 +846,14 @@ function nemo_getEdgeAnimations() {
             } else if (numValidEdgeAnime === 1) {
                 source_text = DWfile.read(abs_animations_path + delimiter_path + list_folder[i] + delimiter_path + error_or_filename);
                 
-                // Done the avoind showing the error when succesfull.
-                error_or_filename = !edge_animation.initFromEdgeFile(source_text, error_or_filename);
-
-                list_animations.push(edge_animation);
+                // Done the avoid showing the error when succesfull.
+                if (edge_animation.initFromEdgeFile(source_text, error_or_filename)) {
+                    error_or_filename = false;
+                    list_animations.push(edge_animation);
+                } else{
+                    error_or_filename = "Initializing from an Edge Animation file, failed...";
+                }
+             
             } else {
                 error_or_filename = "ERROR: The animations folder: " + list_folder[i] + " contains more then one animation file."
             }
@@ -944,10 +969,10 @@ function nemo_delEdgeAnimation(edge_animation) {
         // Confirmation for deletion/removal is done in a higher level function.
         
         // (1) Check folder existence and delete.
-        var isSucces = DWfile.exists(edge_animation.path.dest) && DWfile.remove(edge_animations.path.dest);
+        var isSucces = DWfile.exists(edge_animation.path.dest) && DWfile.remove(edge_animation.path.dest);
 
         // (2) Check for EdgeActions and remove actions and optionally the div-container
-        nemo_delEdgeActions(new RegExp('\\b' + edge_animation.name.file + '\\b'));
+        nemo_delEdgeActions(edge_animation.name.file);
 
         if (!isSucces) alert('Unexpected ERROR: animation folder does not exist anymore or removal failed.');
 
@@ -1007,6 +1032,8 @@ var EdgeAnimation = (function () {
         if (this.setCustomAttributes(source_text)) {
             this.name.folder = nemo_getStringTrailing(nemo_getStringSliceUpTo(this.path.abs, folder_publishweb), delimiter_path);
             this.name.file = nemo_getStringSliceUpTo(filename, delimiter_file_edge);
+            
+            this.attributes.id = this.attributes.class + delimiter_id_name + this.name.file.replace(REGEX_CHANGE_SPECIAL, delimiter_id_name);
 
             this.path.srcfile = this.path.abs + delimiter_path + filename;
             this.path.dest = abs_animations_path + delimiter_path + this.name.file;
@@ -1042,6 +1069,8 @@ var EdgeAnimation = (function () {
             this.name.folder = nemo_getStringTrailing(path, delimiter_path);
             this.name.file = nemo_getAnimeName(this.path.abs);//stuck here i think.
 
+            this.attributes.id = this.attributes.class + delimiter_id_name + this.name.file.replace(REGEX_CHANGE_SPECIAL, delimiter_id_name);
+
             this.path.rel = dw.absoluteURLToDocRelative(abs_doc_path, abs_root_path, this.path.abs);
             this.path.srcfile = this.path.abs + delimiter_path + this.name.file + delimiter_file_edge;
             this.path.dest = abs_animations_path + delimiter_path + this.name.file;
@@ -1072,9 +1101,6 @@ var EdgeAnimation = (function () {
 
         var version = source_text.match(REGEX_ATTR_VERSION_NUM);
         version = version && version[2];
-        
-        this.attributes.id = this.attributes.class + delimiter_id_name + this.name.file.replace(REGEX_CHANGE_SPECIAL, "");
-        
 
         if (source_text == null) {
             error = 'could not retrieve any animation info; null.';
@@ -1089,6 +1115,7 @@ var EdgeAnimation = (function () {
         } else {
 
             this.attributes.compclass = list_matches[2];
+
             if (this.attributes.modidate === "") {
                 this.attributes.modidate = DWfile.getModificationDate(this.path.srcfile);
             }
@@ -1146,7 +1173,7 @@ var EdgeAnimation = (function () {
             var list_str_modate = REGEX_ATTR_MODIFICATION.exec(source_text);
 
             if (list_str_update == null || list_str_modate == null) {
-                alert("ERROR: setCustomAttributes, this file seems to be unedited by Nemo for Dreamweaver.\nCould unexpectedly not find updatePath or modificationDate.");
+                alert("ERROR: setCustomAttributes, this file seems to be unedited by Nemo for Dreamweaver.\nCould unexpectedly not find 'updatePath' or 'modificationDate'.");
 
                 return false;
             } else {

@@ -20,7 +20,7 @@ module.exports = function (grunt) {
 
           {expand: true, flatten: true, src: ['src/ListControlClass.js'], dest: '../../../AppData/Roaming/Adobe/Dreamweaver CC 2014.1/en_US/Configuration/Shared/Nemo/'},
 
-          {expand: true, flatten = true, src: ['src/Inspectors/NM_EdgeAnimation.htm'], dest: '../../../AppData/Roaming/Adobe/Dreamweaver CC 2014.1/en_US/Configuration/Inspectors/', filter: 'isFile'},
+          {expand: true, flatten: true, src: ['src/Inspectors/NM_EdgeAnimation.htm'], dest: '../../../AppData/Roaming/Adobe/Dreamweaver CC 2014.1/en_US/Configuration/Inspectors/', filter: 'isFile'},
         ],
       },
     },

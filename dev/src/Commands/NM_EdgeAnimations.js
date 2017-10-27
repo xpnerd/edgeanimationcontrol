@@ -14,7 +14,7 @@ function initUI() {
     // Since this is called we set all (global variable) paths to the current document.
     nm.initPaths();
 
-    SELECT_ANIME = new ListControl('listAnimations')
+    SELECT_ANIME = new ListControl('listAnimations');
     list_animations = nm.getEdgeAnimations();
     dispAnimations(list_animations);
 }
@@ -43,7 +43,7 @@ function dispAnimations(list_animations) {
         list_index_val.push(i);
     }
 
-    SELECT_ANIME.setALL(list_names_str, list_index_val);
+    SELECT_ANIME.setAll(list_names_str, list_index_val);
 }
 
 /**
@@ -69,7 +69,7 @@ function addAnimation() {
 function insertAnimation(){
     var list_index_val = SELECT_ANIME.getValue('multiple');
 
-    if (list_index_val === 1) {
+    if (list_index_val.length === 1) {
         var edge_animation = list_animations[parseInt(list_index_val)];
         nm.insertTag(edge_animation.getDivTag(), edge_animation.attributes.id);
     } else {
@@ -79,23 +79,8 @@ function insertAnimation(){
     window.close();
 }
 
-/**
- * Deletes/Removes the (multiple) selected animations from <tt>SELECT_ANIME</tt>
- * and from the animation folder, but NOT from list_animations.
- */
-function delAnimations() {
-    var list_index_val = SELECT_ANIME.getValue('multiple');
-    var list_label_str = SELECT_ANIME.get('multiple');
-
-    if (confirm("Are you sure, to delete/remove all selected animations?\n" + list_label_str.join("\n"))) {
-        for (var i = 0; i < list_index_val.length; i++) {
-            var edge_animation = list_animations[parseInt(list_index_val[i])];
-
-            nm.delEdgeAnimation(edge_animation);
-        }
-
-        SELECT_ANIME.del();
-    }
+function updateAnimations(){
+    // use the list values from SELECT_ANIME
 }
 
 /**
@@ -119,4 +104,23 @@ function changeAnimation() {
     }
 
     window.close();
+}
+
+/**
+ * Deletes/Removes the (multiple) selected animations from <tt>SELECT_ANIME</tt>
+ * and from the animation folder, but NOT from list_animations.
+ */
+function delAnimations() {
+    var list_index_val = SELECT_ANIME.getValue('multiple');
+    var list_label_str = SELECT_ANIME.get('multiple');
+
+    if (confirm("Are you sure, to delete/remove all selected animations?\n" + list_label_str.join("\n"))) {
+        for (var i = 0; i < list_index_val.length; i++) {
+            var edge_animation = list_animations[parseInt(list_index_val[i])];
+
+            nm.delEdgeAnimation(edge_animation);
+        }
+
+        SELECT_ANIME.del();
+    }
 }
