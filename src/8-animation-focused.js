@@ -39,15 +39,15 @@ function nemo_isValidAnimeFolder(folder_path) {
         publish_path = folder_path;
     } else if (REGEX_TRAILING_PUBLISH.test(folder_path)) {
         // it is a "ANIMATION/publish/" path
-        publish_path = folder_path + folder_web;
+        publish_path = folder_path + FOLDER_WEB;
     } else if (REGEX_TRAILING_PUBLISHWEBIMG.test(folder_path)) {
         // it is a "ANIMATION/publish/web/images" path
-        publish_path = nemo_getStringSliceUpTo(folder_path, delimiter_path);
+        publish_path = nemo_getStringSliceUpTo(folder_path, DELIMITER_PATH);
     } else if (REGEX_TRAILING_IMG.test(folder_path) || REGEX_TRAILING_INCLUDES.test(folder_path)) {
         // it is a "ANIMATION/images" or "ANIMATION/edge_includes" path
-        publish_path = nemo_getStringSliceUpTo(folder_path, delimiter_path) + folder_publishweb;
+        publish_path = nemo_getStringSliceUpTo(folder_path, DELIMITER_PATH) + FOLDER_PUBLISHWEB;
     } else {
-        publish_path = folder_path + folder_publishweb;
+        publish_path = folder_path + FOLDER_PUBLISHWEB;
     }
 
     // Condition makes it possible that publish_path can be false,
@@ -112,7 +112,7 @@ function nemo_getAnimeName(folder_path) {
             error_or_filename = "There does not exist a correct Edge Animation file.\nMake sure to select an Edge Animation Folder,\nor publish (Ctrl+Alt+S) your edge animation first.";
         } else if (numValidEdgeAnime === 1) {
 
-            return nemo_getStringSliceUpTo(error_or_filename, delimiter_file_edge);
+            return nemo_getStringSliceUpTo(error_or_filename, DELIMITER_FILE_EDGE);
         } else {
 
             error_or_filename = "There does not exist an unique Edge Animation file.\nMake sure to save an Edge Animation in it's own folder.";
@@ -176,8 +176,8 @@ function nemo_importEdgeFiles(edge_animation, text) {
         source_text = text;
     }
 
-    if (!DWfile.exists(abs_animations_path)) DWfile.createFolder(abs_animations_path);
-    if (!DWfile.exists(abs_images_path)) DWfile.createFolder(abs_images_path);
+    if (!DWfile.exists(ABS_ANIMATIONS_PATH)) DWfile.createFolder(ABS_ANIMATIONS_PATH);
+    if (!DWfile.exists(ABS_IMAGES_PATH)) DWfile.createFolder(ABS_IMAGES_PATH);
 
     if (DWfile.exists(edge_animation.path.destfile)) {
         var list_str_modate = REGEX_ATTR_MODIFICATION.exec(DWfile.read(edge_animation.path.destfile));
@@ -186,7 +186,7 @@ function nemo_importEdgeFiles(edge_animation, text) {
             alert('ERROR: Destination ' + edge_animation.name.file + ' file already exists, but does not contain modification date');
             error = true;
         } else {
-            isModified = nemo_isModified(nemo_getStringTrailing(list_str_modate[0], modification_str_date), edge_animation.attributes.modidate, edge_animation.path.destfile);
+            isModified = nemo_isModified(nemo_getStringTrailing(list_str_modate[0], MODIFICATION_STR_DATE), edge_animation.attributes.modidate, edge_animation.path.destfile);
             error = !isModified;
 
             // We do it this, so when not modified importing also concludes with true.
@@ -200,7 +200,7 @@ function nemo_importEdgeFiles(edge_animation, text) {
     if (error) {
         return false;
     } else {
-        var isSucces = nemo_copyFiles(edge_animation.path.abs + folder_image, folder_image);
+        var isSucces = nemo_copyFiles(edge_animation.path.abs + FOLDER_IMAGE, FOLDER_IMAGE);
         
         if (!isSucces){
             alert('ERROR: copying (image) files failed...');
@@ -255,14 +255,14 @@ function nemo_delEdgeActions(file_name, dom) {
         dom_temp = dom;
     }
 
-    var div_element = dom_temp.getElementById(class_animation + delimiter_id_name + file_name);  
-    var script_element = dom_temp.getElementById(id_edge_actions);
+    var div_element = dom_temp.getElementById(CLASS_ANIMATION + DELIMITER_ID_NAME + file_name);  
+    var script_element = dom_temp.getElementById(ID_EDGE_ACTIONS);
 
     if(div_element !== undefined && confirm("Would you also remove the animation container from the stage?")) {
         div_element.outerHTML = ''; // remove div element, .getElementById("my-element").remove(); or .getElementsByClassName("my-elements").remove();
     } else if(div_element !== undefined) {
         if(div_element.getAttribute('id')) div_element.removeAttribute('id');
-        div_element.setAttribute('class', class_animation);
+        div_element.setAttribute('class', CLASS_ANIMATION);
         if(div_element.getAttribute('data-name')) div_element.removeAttribute('data-name');
     }
 
@@ -332,7 +332,7 @@ function nemo_delEdgeActions(file_name, dom) {
  */
 function nemo_getEdgeAnimations() {
     var list_animations = [];
-    var list_folder = DWfile.listFolder(abs_animations_path, 'directories');
+    var list_folder = DWfile.listFolder(ABS_ANIMATIONS_PATH, 'directories');
 
     if (list_folder.length){
         
@@ -340,7 +340,7 @@ function nemo_getEdgeAnimations() {
         for (var i = 0; i < list_folder.length; i++) {
             var source_text = false;
             var edge_animation = new EdgeAnimation();
-            var list_files = DWfile.listFolder(abs_animations_path + delimiter_path + list_folder[i], 'files');
+            var list_files = DWfile.listFolder(ABS_ANIMATIONS_PATH + DELIMITER_PATH + list_folder[i], 'files');
             
             var numValidEdgeAnime = 0;
             var error_or_filename = false;
@@ -358,7 +358,7 @@ function nemo_getEdgeAnimations() {
             if (numValidEdgeAnime === 0) {
                 error_or_filename = "ERROR: The animations folder: " + list_folder[i] + " does not contain any animation file.";
             } else if (numValidEdgeAnime === 1) {
-                source_text = DWfile.read(abs_animations_path + delimiter_path + list_folder[i] + delimiter_path + error_or_filename);
+                source_text = DWfile.read(ABS_ANIMATIONS_PATH + DELIMITER_PATH + list_folder[i] + DELIMITER_PATH + error_or_filename);
                 
                 // Done the avoid showing the error when succesfull.
                 if (edge_animation.initFromEdgeFile(source_text, error_or_filename)) {
@@ -476,7 +476,7 @@ function nemo_changeEdgeAnimation(edge_animation, dom) {
         var the_node = dom_temp.getSelectedNode();
 
         the_node.setAttribute('id', edge_animation.attributes.id);
-        the_node.setAttribute('class', class_animation + delimiter_class_space + edge_animation.attributes.compclass);
+        the_node.setAttribute('class', CLASS_ANIMATION + DELIMITER_CLASS_SPACE + edge_animation.attributes.compclass);
         the_node.setAttribute('height', edge_animation.attributes.height + 'px');
         the_node.setAttribute('width', edge_animation.attributes.width + 'px');
         the_node.setAttribute('data-name', edge_animation.name.file);
@@ -531,7 +531,7 @@ var EdgeAnimation = (function () {
             "file":   ""
         }
         this.attributes = {
-            "class":     class_animation,
+            "class":     CLASS_ANIMATION,
             "id":        "",
             "compclass": "",
             "width":     "",
@@ -560,14 +560,14 @@ var EdgeAnimation = (function () {
      */
     EdgeAnimation.prototype.initFromEdgeFile = function (source_text, filename) {
         if (this.setCustomAttributes(source_text)) {
-            this.name.folder = nemo_getStringTrailing(nemo_getStringSliceUpTo(this.path.abs, folder_publishweb), delimiter_path);
-            this.name.file = nemo_getStringSliceUpTo(filename, delimiter_file_edge);
+            this.name.folder = nemo_getStringTrailing(nemo_getStringSliceUpTo(this.path.abs, FOLDER_PUBLISHWEB), DELIMITER_PATH);
+            this.name.file = nemo_getStringSliceUpTo(filename, DELIMITER_FILE_EDGE);
             
-            this.attributes.id = this.attributes.class + delimiter_id_name + this.name.file.replace(REGEX_CHANGE_SPECIAL, delimiter_id_name);
+            this.attributes.id = this.attributes.class + DELIMITER_ID_NAME + this.name.file.replace(REGEX_CHANGE_SPECIAL, DELIMITER_ID_NAME);
 
-            this.path.srcfile = this.path.abs + delimiter_path + filename;
-            this.path.dest = abs_animations_path + delimiter_path + this.name.file;
-            this.path.destfile = this.path.dest + delimiter_path + filename;
+            this.path.srcfile = this.path.abs + DELIMITER_PATH + filename;
+            this.path.dest = ABS_ANIMATIONS_PATH + DELIMITER_PATH + this.name.file;
+            this.path.destfile = this.path.dest + DELIMITER_PATH + filename;
 
             return true;
         } else {
@@ -596,15 +596,15 @@ var EdgeAnimation = (function () {
         if (this.path.abs) {
             // Due to the workings of Edge Animate 5.0.1 and 6.0.0 the names of file and folder coincide, see a sample folder for this phenomenen.
             
-            this.name.folder = nemo_getStringTrailing(path, delimiter_path);
+            this.name.folder = nemo_getStringTrailing(path, DELIMITER_PATH);
             this.name.file = nemo_getAnimeName(this.path.abs);//stuck here i think.
 
-            this.attributes.id = this.attributes.class + delimiter_id_name + this.name.file.replace(REGEX_CHANGE_SPECIAL, delimiter_id_name);
+            this.attributes.id = this.attributes.class + DELIMITER_ID_NAME + this.name.file.replace(REGEX_CHANGE_SPECIAL, DELIMITER_ID_NAME);
 
-            this.path.rel = dw.absoluteURLToDocRelative(abs_doc_path, abs_root_path, this.path.abs);
-            this.path.srcfile = this.path.abs + delimiter_path + this.name.file + delimiter_file_edge;
-            this.path.dest = abs_animations_path + delimiter_path + this.name.file;
-            this.path.destfile = this.path.dest + delimiter_path + this.name.file + delimiter_file_edge;
+            this.path.rel = dw.absoluteURLToDocRelative(ABS_DOC_PATH, ABS_ROOT_PATH, this.path.abs);
+            this.path.srcfile = this.path.abs + DELIMITER_PATH + this.name.file + DELIMITER_FILE_EDGE;
+            this.path.dest = ABS_ANIMATIONS_PATH + DELIMITER_PATH + this.name.file;
+            this.path.destfile = this.path.dest + DELIMITER_PATH + this.name.file + DELIMITER_FILE_EDGE;
 
             if (this.name.file) {
                 return true;
@@ -707,9 +707,9 @@ var EdgeAnimation = (function () {
 
                 return false;
             } else {
-                this.path.rel = nemo_getStringTrailing(list_str_update[0], modification_str_update_path);
-                this.path.abs = dw.relativeToAbsoluteURL(abs_doc_path, abs_folder_path, this.path.rel);
-                this.attributes.modidate = nemo_getStringTrailing(list_str_modate[0], modification_str_date);
+                this.path.rel = nemo_getStringTrailing(list_str_update[0], MODIFICATION_STR_UPDATE_PATH);
+                this.path.abs = dw.relativeToAbsoluteURL(ABS_DOC_PATH, ABS_FOLDER_PATH, this.path.rel);
+                this.attributes.modidate = nemo_getStringTrailing(list_str_modate[0], MODIFICATION_STR_DATE);
 
                 return this.setDefaultAttributes(source_text);
             }
@@ -727,7 +727,7 @@ var EdgeAnimation = (function () {
         var left = 340; // 500 is default width
         var uniqueId = this.attributes.id;
         // New way for class should be: "class_animation", but nemo-engine does not support that yet... ("compclass + ' ' + class_animation")
-        var divTag = '<div class="' + class_animation + delimiter_class_space + this.attributes.compclass 
+        var divTag = '<div class="' + CLASS_ANIMATION + DELIMITER_CLASS_SPACE + this.attributes.compclass 
                    + '" id="' + uniqueId 
                    +'" style="position: absolute; top: ' + top 
                    + 'px; left: ' + left 
@@ -756,13 +756,13 @@ var EdgeAnimation = (function () {
             return false;
         } else {
             // The published _edge.js files have an empty first line, that is why adding comments in the file does not affect the functioning.
-            var text_additional = modification_str_stamp
-                + modification_str_update_path + this.path.rel + delimiter_modification
-                + modification_str_date + this.attributes.modidate + delimiter_modification;
+            var text_additional = MODIFICATION_STR_STAMP
+                + MODIFICATION_STR_UPDATE_PATH + this.path.rel + DELIMITER_MODIFICATION
+                + MODIFICATION_STR_DATE + this.attributes.modidate + DELIMITER_MODIFICATION;
 
             var text_modified = text_additional + source_text;
-            text_modified = text_modified.replace(REGEX_CHANGE_IMG_LOC, folder_change_img);
-            text_modified = text_modified.replace(REGEX_CHANGE_SCRIPTS, file_change_script);
+            text_modified = text_modified.replace(REGEX_CHANGE_IMG_LOC, FOLDER_CHANGE_IMG);
+            text_modified = text_modified.replace(REGEX_CHANGE_SCRIPTS, FILE_CHANGE_SCRIPT);
 
             return text_modified;
         }

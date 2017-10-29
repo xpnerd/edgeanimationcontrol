@@ -39,8 +39,8 @@ function nemo_copyFiles(src_folder, folder_str_name) {
         var didAnOverride = false;
 
         for (var j = 0; j < list_files.length; j++) {
-            var dest_file = dw.doURLEncoding(abs_images_path + delimiter_path + list_files[j]);
-            var src_file = dw.doURLEncoding(src_folder + delimiter_path + list_files[j]);
+            var dest_file = dw.doURLEncoding(ABS_IMAGES_PATH + DELIMITER_PATH + list_files[j]);
+            var src_file = dw.doURLEncoding(src_folder + DELIMITER_PATH + list_files[j]);
             
             if (DWfile.exists(dest_file)) {
                 if (!doTheSame) {

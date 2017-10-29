@@ -70,26 +70,26 @@ nm.delEdgeAnimation = nemo_delEdgeAnimation;
  * local variables for all functions (ORDER MATTERS)
  */
 
-var class_animation = "EdgeAnimation";                      // div class of an (Edge) Animation
-var id_edge_actions = "EdgeAnimationActions";
-var delimiter_id_name = "_";
-var delimiter_class_space = ' ';
-var delimiter_file_edge = "\_edge.js";                      // Edge Animation (default) file name addition.
-var delimiter_folder_nemo = '\/_web';                       // Nemo (default) web folder
-var delimiter_path = '\/';                                  // URL separator
-var folder_anime = '\/animations';                          // Nemo (default) animations folder path
-var folder_anime_src = '\/animations_src';                  // Nemo (default) animations' source folder path
-var folder_image = '\/images';                              // Nemo (default) images folder path
-var folder_publishweb = '\/publish\/web';                   // Edge Animation published folder path
-var folder_web = '\/web';                                   // Edge Animation web folder path
-var str_slideswrapper = "slideswrapper";                    // Element id.
+var CLASS_ANIMATION = "EdgeAnimation";                      // div class of an (Edge) Animation
+var ID_EDGE_ACTIONS = "EdgeAnimationActions";
+var DELIMITER_ID_NAME = "_";
+var DELIMITER_CLASS_SPACE = ' ';
+var DELIMITER_FILE_EDGE = "\_edge.js";                      // Edge Animation (default) file name addition.
+var DELIMITER_FOLDER_NEMO = '\/_web';                       // Nemo (default) web folder
+var DELIMITER_PATH = '\/';                                  // URL separator
+var FOLDER_ANIME = '\/animations';                          // Nemo (default) animations folder path
+var FOLDER_ANIME_SRC = '\/animations_src';                  // Nemo (default) animations' source folder path
+var FOLDER_IMAGE = '\/images';                              // Nemo (default) images folder path
+var FOLDER_PUBLISHWEB = '\/publish\/web';                   // Edge Animation published folder path
+var FOLDER_WEB = '\/web';                                   // Edge Animation web folder path
+var STR_SLIDESWRAPPER = "slideswrapper";                    // Element id.
 
-var delimiter_modification = "*";                           // Nemo (default) file modification, separator of information.
-var file_change_script = "scripts=\[\]";                    // Nemo (default) file modification, delete extra scripts usage.
-var folder_change_img = "var im='images/'";                 // Nemo (default) file modification, point to 'folder_image'
-var modification_str_date = "\/\/modificationDate:";        // Nemo (default) file modification, modification date stamp/fingerprint
-var modification_str_stamp = " \/* Edited by Nemo *\/ ";    // Nemo (default) file modification, stamp/fingerprint
-var modification_str_update_path = "\/\/updatePath:";       // Nemo (default) file modification, update path stamp/fingerprint
+var DELIMITER_MODIFICATION = "*";                           // Nemo (default) file modification, separator of information.
+var FILE_CHANGE_SCRIPT = "scripts=\[\]";                    // Nemo (default) file modification, delete extra scripts usage.
+var FOLDER_CHANGE_IMG = "var im='images/'";                 // Nemo (default) file modification, point to 'folder_image'
+var MODIFICATION_STR_DATE = "\/\/modificationDate:";        // Nemo (default) file modification, modification date stamp/fingerprint
+var MODIFICATION_STR_STAMP = " \/* Edited by Nemo *\/ ";    // Nemo (default) file modification, stamp/fingerprint
+var MODIFICATION_STR_UPDATE_PATH = "\/\/updatePath:";       // Nemo (default) file modification, update path stamp/fingerprint
 
 var REGEX_TRAILING_PUBLISHWEB = /publish\/web$/;
 var REGEX_TRAILING_PUBLISH = /publish$/;
@@ -112,9 +112,9 @@ var REGEX_ATTR_VERSION = /vid\=/;
  * If version and minimum version comp. coincinde, then x2 is the build version and x3 hold diff. info.
  */
 var REGEX_ATTR_VERSION_NUM = /(x1\=\')([0-9])\./;               // main version number. We try to support versions 5.x.x or higher.
-var REGEX_ATTR_UPDATE = new RegExp(modification_str_update_path + "[^" + delimiter_modification + "]*"); //RegEx, /\/\/updatePath:[^*]*/;
-var REGEX_ATTR_MODIFICATION = new RegExp(modification_str_date + "[^" + delimiter_modification + "]*");  //RegEx, /\/\/modificationDate:[^*]*/;
-var REGEX_ATTR_CLASS = new RegExp('\\b' + class_animation + '\\b');
+var REGEX_ATTR_UPDATE = new RegExp(MODIFICATION_STR_UPDATE_PATH + "[^" + DELIMITER_MODIFICATION + "]*"); //RegEx, /\/\/updatePath:[^*]*/;
+var REGEX_ATTR_MODIFICATION = new RegExp(MODIFICATION_STR_DATE + "[^" + DELIMITER_MODIFICATION + "]*");  //RegEx, /\/\/modificationDate:[^*]*/;
+var REGEX_ATTR_CLASS = new RegExp('\\b' + CLASS_ANIMATION + '\\b');
 var REGEX_CHANGE_IMG_LOC = /(var im=')[\S\s]*?'/g;
 var REGEX_CHANGE_SCRIPTS = /scripts=\[[^\]]*\]/;
 var REGEX_CHANGE_SPECIAL = / /g; // Remove any spaces.
@@ -126,9 +126,9 @@ var REGEX_CHANGE_SPECIAL = / /g; // Remove any spaces.
  * !WARNING!
  * These path values have to be initiated everytime any of the nemo_functions are used.
  */
-var abs_doc_path;           // current document path (file://URL), corresponds with dw API: docPathURL (dw.getDocumentDOM().URL)
-var abs_folder_path;        // current folder path (file://URL), acquired from 'abs_doc_path'
-var abs_root_path;          // current topic (NL => module) folder path (default: file:///C:/...), corresponds with dw API: siteRootURL
-var abs_dest_path;          // destination folder path (default: file:///C:/.../delimiter_folder_nemo) points to a default nemo location.
-var abs_animations_path;    // destination folder path (default: file:///C:/.../delimiter_folder_nemo/animations) points to a default nemo location.
-var abs_images_path;        // destination folder path (default: file:///C:/.../delimiter_folder_nemo/images) points to a default nemo location.
+var ABS_DOC_PATH;           // current document path (file://URL), corresponds with dw API: docPathURL (dw.getDocumentDOM().URL)
+var ABS_FOLDER_PATH;        // current folder path (file://URL), acquired from 'abs_doc_path'
+var ABS_ROOT_PATH;          // current topic (NL => module) folder path (default: file:///C:/...), corresponds with dw API: siteRootURL
+var ABS_DEST_PATH;          // destination folder path (default: file:///C:/.../delimiter_folder_nemo) points to a default nemo location.
+var ABS_ANIMATIONS_PATH;    // destination folder path (default: file:///C:/.../delimiter_folder_nemo/animations) points to a default nemo location.
+var ABS_IMAGES_PATH;        // destination folder path (default: file:///C:/.../delimiter_folder_nemo/images) points to a default nemo location.

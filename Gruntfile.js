@@ -7,7 +7,7 @@ module.exports = function (grunt) {
         separator: '\n\n',
       },
       dist: {
-        src: ['src/1-json-main.js', 'src/2-global-focused.js', 'src/3-general-focused', 'src/4-file-focused.js', 'src/5-folder-focused.js', 'src/6-slide-focused.js','src/7-json-focused.js', 'src/8-animation-focused.js'],
+        src: ['src/1-json-main.js', 'src/2-global-focused.js', 'src/3-general-focused.js', 'src/4-file-focused.js', 'src/5-folder-focused.js', 'src/6-slides-focused.js','src/7-json-focused.js', 'src/8-animation-focused.js'],
         dest: '../../AppData/Roaming/Adobe/Dreamweaver CC 2014.1/en_US/Configuration/Shared/Nemo/nmscripts.js',//'dist/new_nmscripts.js',
       },
     },

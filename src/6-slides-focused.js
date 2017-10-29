@@ -18,7 +18,7 @@ function nemo_getSlideNodes(dom) {
     }
     var slides = [];
     if (dom_temp !== null) {
-        var sw = dom_temp.getElementById(str_slideswrapper);
+        var sw = dom_temp.getElementById(STR_SLIDESWRAPPER);
         if (sw !== undefined) {
             slides = sw.childNodes;
             slides.shift(); // remove slide stay wrapperc
@@ -591,6 +591,7 @@ function nemo_filenameIdentifier(filename) {
  * @param {*} folderpath 
  */
 function nemo_getFileNamesOfAnimatedContent(folderpath) {
+    var REGEX_ISHTML = /(\.|\/)(html?)$/i;    
     var files = DWfile.listFolder(folderpath);
     var htmlFiles = [];
     for (var i = 0; i < files.length; i++) {

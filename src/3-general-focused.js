@@ -12,8 +12,8 @@
  * @returns {void} nothing.
  */
 function nemo_initPaths() {
-    abs_doc_path = dw.getDocumentPath('document');
-    abs_folder_path = nemo_getParentFolderPath(abs_doc_path);
+    ABS_DOC_PATH = dw.getDocumentPath('document');
+    ABS_FOLDER_PATH = nemo_getParentFolderPath(ABS_DOC_PATH);
     
     /*
      * Standard nemo structure is ".../topic/_web/subtopic.html", with the .html being the abs_doc_path.
@@ -24,10 +24,10 @@ function nemo_initPaths() {
      * 
      * Same idea for abs_dest_path
      */
-    abs_root_path = nemo_getParentFolderPath(abs_folder_path);
-    abs_dest_path = abs_folder_path; //abs_root_path + delimiter_folder_nemo;
-    abs_animations_path = abs_dest_path + folder_anime;
-    abs_images_path = abs_dest_path + folder_image;
+    ABS_ROOT_PATH = nemo_getParentFolderPath(ABS_FOLDER_PATH);
+    ABS_DEST_PATH = ABS_FOLDER_PATH; //abs_root_path + delimiter_folder_nemo;
+    ABS_ANIMATIONS_PATH = ABS_DEST_PATH + FOLDER_ANIME;
+    ABS_IMAGES_PATH = ABS_DEST_PATH + FOLDER_IMAGE;
 }
 
 /**

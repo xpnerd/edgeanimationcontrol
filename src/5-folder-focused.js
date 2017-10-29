@@ -45,7 +45,7 @@ function nemo_getParentFolderPath(path) {
     var folder_path;
 
     if (path == null) {
-        folder_path = abs_doc_path;
+        folder_path = ABS_DOC_PATH;
     } else {
 
         try {
@@ -58,7 +58,7 @@ function nemo_getParentFolderPath(path) {
         folder_path = path;
     } // can also use value = thing1 || default (if thing1, else default);
 
-    return nemo_getStringSliceUpTo(folder_path, delimiter_path);
+    return nemo_getStringSliceUpTo(folder_path, DELIMITER_PATH);
 }
 
 /**
@@ -72,9 +72,9 @@ function nemo_getParentFolderPath(path) {
  */
 function nemo_getFolderPathBrowse(folder_path) {
     if (folder_path == null) {
-        folder_path = folder_anime_src;
+        folder_path = FOLDER_ANIME_SRC;
     }
-    var start_path = abs_root_path + folder_path;
+    var start_path = ABS_ROOT_PATH + folder_path;
     var absFolderPath = "";
 
     if (DWfile.exists(start_path)) {
@@ -87,6 +87,6 @@ function nemo_getFolderPathBrowse(folder_path) {
     if (absFolderPath === "") {
         return false;
     } else {
-        return dw.relativeToAbsoluteURL(abs_doc_path, abs_folder_path, absFolderPath);
+        return dw.relativeToAbsoluteURL(ABS_DOC_PATH, ABS_FOLDER_PATH, absFolderPath);
     }
 }
