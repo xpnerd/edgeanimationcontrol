@@ -2,6 +2,7 @@
 Plugin for Dreamweaver to import and monitor Adobe Edge animations
 
 * Please initialize the repository with the command `npm install`.
-* You can test your libraries outside Dreamweaver with the command `node test.js` in the 'test' folder environment.
+* Before testing insice Dreamweaver change relative directories from this repository to `C:/Users/USERNAME/AppData/Roaming/Adobe/Dreamweaver CC 2014.1/en_US/Configuration`, here `USERNAME` is the name of YOUR account.
+* You can test your libraries inside Dreamweaver after command `grunt` in the repository, this will concatenate and copy files. 
 
-Else one can use the `test.html` and developers console of modern browsers (e.g. firefox, chrome, etc.).
+Everytime you changed anything you want to test in Dreamweaver; close Dreamweaver run `grunt` and restart Dreamweaver with a nemo topic/module.
