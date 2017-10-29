@@ -57,8 +57,9 @@ typings/
 # dotenv environment variables file
 .env
 
-# javascript file
+# javascript files
 dw_test.js
+getpath.js
 
 # build dist directory
 dev/dist/
