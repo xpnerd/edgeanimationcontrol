@@ -1,35 +1,9 @@
 {
-  "name": "edgeanimationcontrol",
-  "version": "1.0.0",
-  "description": "Dreamweaver plugin to manage Adobe Edge animations",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tjibbevanderlaan/edgeanimationcontrol.git"
-  },
-  "keywords": [
-    "Adobe",
-    "edge",
-    "dreamweaver",
-    "nemo",
-    "university",
-    "of",
-    "twente"
-  ],
-  "author": "Xiaoming op de Hoek",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/tjibbevanderlaan/edgeanimationcontrol/issues"
-  },
-  "homepage": "https://github.com/tjibbevanderlaan/edgeanimationcontrol#readme",
+  "name": "combine-nmscript",
+  "version": "0.1.0",
   "devDependencies": {
-    "file-url": "^2.0.2",
-    "jsdom": "^11.2.0"
+    "grunt": "~0.4.1",
+    "grunt-contrib-concat": "0.3.0",
+    "grunt-contrib-copy": "^1.0.0"
   }
 }
